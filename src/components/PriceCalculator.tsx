@@ -6,6 +6,7 @@ import { ShoppingCart, Trash2 } from "lucide-react";
 import type { ServiceType } from "@/lib/types";
 import { useLanguage } from "@/lib/LanguageContext";
 import { getItemName } from "@/lib/translations";
+import { motion } from "framer-motion";
 
 export default function PriceCalculator() {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -30,22 +31,24 @@ export default function PriceCalculator() {
   const discountedTotal = total - total * discount;
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5">
-        <div className="flex items-center gap-2.5">
-          <ShoppingCart className="w-5 h-5 text-white" />
-          <h3 className="text-lg font-bold text-white">{t("calculator.title")}</h3>
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden card-hover">
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-6 py-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+            <ShoppingCart className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-white tracking-tight">{t("calculator.title")}</h3>
+            <p className="text-blue-100/70 text-sm">{t("calculator.subtitle")}</p>
+          </div>
         </div>
-        <p className="text-blue-100 text-sm mt-1">
-          {t("calculator.subtitle")}
-        </p>
       </div>
 
       <div className="p-4 border-b border-gray-100">
         <div className="flex bg-gray-100 rounded-xl p-1">
           <button
             onClick={() => setServiceType("press")}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
               serviceType === "press"
                 ? "bg-white text-blue-700 shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
@@ -55,7 +58,7 @@ export default function PriceCalculator() {
           </button>
           <button
             onClick={() => setServiceType("washPress")}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
               serviceType === "washPress"
                 ? "bg-white text-blue-700 shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
@@ -88,18 +91,24 @@ export default function PriceCalculator() {
                 onClick={() =>
                   updateQty(item.name, (quantities[item.name] || 0) - 1)
                 }
-                className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
+                className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors active:bg-gray-100"
               >
                 -
               </button>
-              <span className="w-8 text-center text-sm font-semibold text-gray-800">
+              <motion.span
+                key={quantities[item.name] || 0}
+                initial={{ scale: 1.3 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.2 }}
+                className="w-8 text-center text-sm font-semibold text-gray-800"
+              >
                 {quantities[item.name] || 0}
-              </span>
+              </motion.span>
               <button
                 onClick={() =>
                   updateQty(item.name, (quantities[item.name] || 0) + 1)
                 }
-                className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
+                className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors active:bg-gray-100"
               >
                 +
               </button>
@@ -109,7 +118,12 @@ export default function PriceCalculator() {
       </div>
 
       {hasItems && (
-        <div className="px-6 pb-6 space-y-3">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="px-6 pb-6 space-y-3"
+        >
           <div className="h-px bg-gray-100" />
           <div className="space-y-1.5">
             <div className="flex justify-between text-sm">
@@ -133,12 +147,12 @@ export default function PriceCalculator() {
           </div>
           <button
             onClick={() => setQuantities({})}
-            className="flex items-center justify-center gap-2 w-full py-2.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-2.5 text-sm text-gray-500 hover:text-gray-700 transition-colors hover:bg-gray-50 rounded-xl"
           >
             <Trash2 className="w-4 h-4" />
             {t("calculator.clearAll")}
           </button>
-        </div>
+        </motion.div>
       )}
     </div>
   );

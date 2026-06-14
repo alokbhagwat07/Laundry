@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Star, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Loader2, Quote } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Review {
   id: number;
@@ -33,15 +34,21 @@ export default function Testimonials() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+      <div className="flex items-center justify-center py-16">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+          <span className="text-sm text-gray-400">Loading reviews...</span>
+        </div>
       </div>
     );
   }
 
   if (reviews.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-8 md:p-10 text-center">
+      <div className="glass rounded-2xl shadow-xl p-12 text-center">
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Quote className="w-7 h-7 text-blue-400" />
+        </div>
         <p className="text-gray-400">No reviews yet. Be the first to share your experience!</p>
       </div>
     );
@@ -50,51 +57,75 @@ export default function Testimonials() {
   const t = reviews[current];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-8 md:p-10">
-      <div className="flex flex-col items-center text-center">
-        <div className="flex gap-1 mb-4">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              className={`w-5 h-5 ${
-                i < t.rating
-                  ? "text-yellow-400 fill-yellow-400"
-                  : "text-gray-200"
-              }`}
-            />
-          ))}
-        </div>
-        <p className="text-gray-600 leading-relaxed text-base mb-6 italic">
-          &ldquo;{t.comment}&rdquo;
-        </p>
-        <p className="font-semibold text-gray-900">{t.customer_name}</p>
-        <p className="text-sm text-gray-400">Happy Customer</p>
-      </div>
+    <div className="glass rounded-2xl shadow-xl p-8 md:p-10 card-hover">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={current}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center text-center"
+        >
+          {/* Avatar */}
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center mb-5 shadow-lg shadow-blue-200/50 ring-4 ring-white">
+            <span className="text-white font-bold text-xl">
+              {t.customer_name.charAt(0).toUpperCase()}
+            </span>
+          </div>
+
+          {/* Stars */}
+          <div className="flex gap-1 mb-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`w-5 h-5 ${
+                  i < t.rating
+                    ? "text-yellow-400 fill-yellow-400 drop-shadow-sm"
+                    : "text-gray-200"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Quote */}
+          <p className="text-gray-600 leading-relaxed text-base mb-5 italic max-w-md">
+            &ldquo;{t.comment}&rdquo;
+          </p>
+
+          {/* Author */}
+          <p className="font-semibold text-gray-900">{t.customer_name}</p>
+          <p className="text-sm text-gray-400">Happy Customer</p>
+        </motion.div>
+      </AnimatePresence>
 
       {reviews.length > 1 && (
-        <div className="flex items-center justify-center gap-4 mt-6">
+        <div className="flex items-center justify-center gap-4 mt-8">
           <button
             onClick={prev}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-2.5 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100 hover:border-gray-200"
+            aria-label="Previous review"
           >
-            <ChevronLeft className="w-5 h-5 text-gray-500" />
+            <ChevronLeft className="w-4 h-4 text-gray-500" />
           </button>
           <div className="flex gap-1.5">
             {reviews.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  i === current ? "bg-blue-600 w-6" : "bg-gray-300"
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === current ? "w-6 bg-gradient-to-r from-blue-600 to-indigo-500" : "w-2 bg-gray-300 hover:bg-gray-400"
                 }`}
+                aria-label={`Go to review ${i + 1}`}
               />
             ))}
           </div>
           <button
             onClick={next}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-2.5 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100 hover:border-gray-200"
+            aria-label="Next review"
           >
-            <ChevronRight className="w-5 h-5 text-gray-500" />
+            <ChevronRight className="w-4 h-4 text-gray-500" />
           </button>
         </div>
       )}

@@ -63,11 +63,10 @@ export default function FloatingWhatsApp() {
     <>
       {open && (
         <div
-          className="fixed bottom-44 right-6 z-[9999] w-[380px] max-w-[calc(100vw-32px)]"
+          className="fixed bottom-44 right-6 z-[9999] w-[380px] max-w-[calc(100vw-32px)] animate-scale-in"
           style={{ maxHeight: "560px" }}
         >
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col">
-            {/* WhatsApp Header */}
             <div className="bg-[#075e54] px-4 py-3 flex items-center gap-3">
               <div className="w-9 h-9 bg-[#25d366] rounded-full flex items-center justify-center">
                 <MessageCircle className="w-5 h-5 text-white" />
@@ -84,7 +83,6 @@ export default function FloatingWhatsApp() {
               </button>
             </div>
 
-            {/* Chat Area */}
             <div className="bg-[#e5ddd5] bg-[image:url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')]">
               <div className="h-[320px] overflow-y-auto p-3 space-y-2">
                 {messages.map((msg, i) => (
@@ -120,7 +118,6 @@ export default function FloatingWhatsApp() {
               </div>
             </div>
 
-            {/* Suggestions */}
             <div className="bg-gray-50 px-3 pt-3 border-t border-gray-100">
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {SUGGESTIONS.map((s) => (
@@ -136,7 +133,6 @@ export default function FloatingWhatsApp() {
               </div>
             </div>
 
-            {/* Input */}
             <div className="bg-white px-3 py-2.5 border-t border-gray-100">
               <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="flex gap-2">
                 <input
@@ -166,7 +162,7 @@ export default function FloatingWhatsApp() {
           setOpen(next);
           if (next) window.dispatchEvent(new CustomEvent("close-chat"));
         }}
-        className="fixed bottom-24 right-6 z-[10001] w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-300 hover:bg-green-600 hover:scale-110 active:scale-95 transition-all duration-200"
+        className="fixed bottom-24 right-6 z-[10001] w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-green-300 hover:shadow-xl hover:shadow-green-400 hover:from-green-600 hover:to-emerald-600 hover:scale-110 active:scale-95 transition-all duration-200 animate-pulse-glow"
         aria-label="WhatsApp Chat"
       >
         {open ? (

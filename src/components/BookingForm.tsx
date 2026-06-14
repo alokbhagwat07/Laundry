@@ -6,6 +6,7 @@ import { Calendar, Clock, User, Phone, MapPin, Package, CheckCircle2 } from "luc
 import type { ServiceType } from "@/lib/types";
 import { useLanguage } from "@/lib/LanguageContext";
 import { getItemName } from "@/lib/translations";
+import { motion } from "framer-motion";
 
 interface FormData {
   name: string;
@@ -90,26 +91,31 @@ export default function BookingForm() {
 
   if (submitted) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-8 md:p-10 text-center max-w-lg mx-auto">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="glass rounded-2xl shadow-xl p-8 md:p-10 text-center max-w-lg mx-auto"
+      >
+        <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-8 h-8 text-green-600" />
         </div>
         <h3 className="text-xl font-bold text-gray-900 mb-2">
-          {t("booking.confirmed")} 🎉
+          {t("booking.confirmed")}
         </h3>
         <p className="text-gray-500 mb-4">
           {t("booking.confirmedText")}
         </p>
-        <div className="bg-blue-50 rounded-xl p-4 mb-6">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 mb-6 border border-blue-100">
           <p className="text-sm text-gray-500 mb-1">{t("booking.yourOrderId")}</p>
-          <p className="text-2xl font-bold text-blue-700 font-mono">
+          <p className="text-2xl font-bold text-blue-700 font-mono tracking-wider">
             {orderId}
           </p>
           <p className="text-xs text-gray-400 mt-1">
             {t("booking.saveId")}
           </p>
         </div>
-        <div className="space-y-2 text-sm text-left bg-gray-50 rounded-xl p-4 mb-6">
+        <div className="space-y-2 text-sm bg-white rounded-xl p-4 mb-6 border border-gray-100">
           <p><span className="text-gray-500">{t("booking.fullName")}:</span> <span className="font-medium">{form.name}</span></p>
           <p><span className="text-gray-500">{t("booking.mobileNumber")}:</span> <span className="font-medium">{form.mobile}</span></p>
           <p><span className="text-gray-500">{t("booking.pickupSchedule")}:</span> <span className="font-medium">{form.pickupDate} at {form.pickupTime}</span></p>
@@ -119,7 +125,7 @@ export default function BookingForm() {
         <div className="flex gap-3 justify-center">
           <a
             href={`/tracking`}
-            className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-600 transition-all shadow-md"
           >
             {t("booking.trackOrder")}
           </a>
@@ -140,15 +146,23 @@ export default function BookingForm() {
             {t("booking.bookAnother")}
           </button>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 md:p-8 space-y-5">
+      {/* Personal Details */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 md:p-8 space-y-5 card-hover"
+      >
         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <User className="w-5 h-5 text-blue-600" />
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center">
+            <User className="w-4 h-4 text-blue-600" />
+          </div>
           {t("booking.personalDetails")}
         </h3>
 
@@ -161,7 +175,7 @@ export default function BookingForm() {
               required
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
             />
           </div>
           <div className="relative">
@@ -172,7 +186,7 @@ export default function BookingForm() {
               required
               value={form.mobile}
               onChange={(e) => updateField("mobile", e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
             />
           </div>
         </div>
@@ -185,14 +199,23 @@ export default function BookingForm() {
             value={form.address}
             onChange={(e) => updateField("address", e.target.value)}
             rows={2}
-            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
           />
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 md:p-8 space-y-5">
+      {/* Pickup Schedule */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.1 }}
+        className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 md:p-8 space-y-5 card-hover"
+      >
         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-blue-600" />
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-blue-600" />
+          </div>
           {t("booking.pickupSchedule")}
         </h3>
 
@@ -204,7 +227,7 @@ export default function BookingForm() {
               required
               value={form.pickupDate}
               onChange={(e) => updateField("pickupDate", e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
             />
           </div>
           <div className="relative">
@@ -213,7 +236,7 @@ export default function BookingForm() {
               required
               value={form.pickupTime}
               onChange={(e) => updateField("pickupTime", e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors appearance-none"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none"
             >
               <option value="">{t("booking.selectTime")}</option>
               <option value="8:00 AM - 10:00 AM">8:00 AM - 10:00 AM</option>
@@ -225,11 +248,20 @@ export default function BookingForm() {
             </select>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 md:p-8 space-y-4">
+      {/* Laundry Items */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.2 }}
+        className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 md:p-8 space-y-4 card-hover"
+      >
         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <Package className="w-5 h-5 text-blue-600" />
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center">
+            <Package className="w-4 h-4 text-blue-600" />
+          </div>
           {t("booking.laundryItems")}
         </h3>
 
@@ -237,7 +269,7 @@ export default function BookingForm() {
           <button
             type="button"
             onClick={() => setServiceType("press")}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
               serviceType === "press"
                 ? "bg-white text-blue-700 shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
@@ -248,7 +280,7 @@ export default function BookingForm() {
           <button
             type="button"
             onClick={() => setServiceType("washPress")}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
               serviceType === "washPress"
                 ? "bg-white text-blue-700 shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
@@ -262,10 +294,10 @@ export default function BookingForm() {
           {PRICING.map((item) => (
             <div
               key={item.name}
-              className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+              className={`flex items-center justify-between p-3 rounded-xl border transition-all duration-200 ${
                 (form.items[item.name] || 0) > 0
-                  ? "border-blue-200 bg-blue-50"
-                  : "border-gray-100 bg-gray-50"
+                  ? "border-blue-200 bg-blue-50/80"
+                  : "border-gray-100 bg-white hover:bg-gray-50"
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -307,7 +339,7 @@ export default function BookingForm() {
         </div>
 
         {totalItems > 0 && (
-          <div className="bg-gray-50 rounded-xl p-4 space-y-1.5">
+          <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 space-y-1.5 border border-gray-100">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">{t("booking.totalItems")}</span>
               <span className="font-medium text-gray-800">{totalItems}</span>
@@ -334,15 +366,16 @@ export default function BookingForm() {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
 
-      <button
+      <motion.button
         type="submit"
         disabled={totalItems === 0}
-        className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-200"
+        whileTap={{ scale: 0.98 }}
+        className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-200/50 hover:shadow-blue-300/50"
       >
         {t("booking.bookPickup")} — ₹{totalItems > 0 ? discountedTotal.toFixed(0) : "0.00"}
-      </button>
+      </motion.button>
     </form>
   );
 }

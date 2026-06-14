@@ -20,9 +20,11 @@ import {
   Database,
   Bell,
   BellRing,
+  Sparkles,
 } from "lucide-react";
 import type { Order, OrderStatus } from "@/lib/types";
 import { useLanguage } from "@/lib/LanguageContext";
+import { motion } from "framer-motion";
 
 const STATUSES: OrderStatus[] = [
   "Order Received",
@@ -63,8 +65,13 @@ export default function AdminPage() {
   if (!authed) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 max-w-sm w-full text-center">
-          <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-sm w-full text-center"
+        >
+          <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Lock className="w-6 h-6 text-blue-600" />
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-1">{t("admin.login.title")}</h1>
@@ -75,13 +82,21 @@ export default function AdminPage() {
             onChange={(e) => { setPassword(e.target.value); setPassError(false); }}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             placeholder={t("admin.login.placeholder")}
-            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+            className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 transition-all duration-200"
           />
-          {passError && <p className="text-red-500 text-xs mb-3">{t("admin.login.incorrect")}</p>}
+          {passError && (
+            <motion.p
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-red-500 text-xs mb-3"
+            >
+              {t("admin.login.incorrect")}
+            </motion.p>
+          )}
           <button
             onClick={handleLogin}
             disabled={checking}
-            className="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-600 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-blue-200/50"
           >
             {checking ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -90,7 +105,7 @@ export default function AdminPage() {
             )}
             {t("admin.login.login")}
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -136,8 +151,8 @@ function AdminDashboard({ password }: { password: string }) {
   const showBrowserNotification = useCallback((order: Order) => {
     if (!("Notification" in window)) return;
     if (Notification.permission === "granted") {
-      new Notification("🚨 New Order Received!", {
-        body: `${order.customer_name} - ₹${order.total_amount}`,
+      new Notification(" New Order Received!", {
+        body: `${order.customer_name} - \u20B9${order.total_amount}`,
         icon: "/favicon.ico",
       });
     }
@@ -248,16 +263,19 @@ function AdminDashboard({ password }: { password: string }) {
   const completedOrders = orders.filter((o) => o.status === "Delivered").length;
 
   const stats = [
-    { label: t("admin.stat.totalOrders"), value: orders.length.toString(), icon: <Package className="w-5 h-5" />, color: "bg-blue-500" },
-    { label: t("admin.stat.pendingOrders"), value: pendingOrders.toString(), icon: <Clock className="w-5 h-5" />, color: "bg-amber-500" },
-    { label: t("admin.stat.completedOrders"), value: completedOrders.toString(), icon: <CheckCircle2 className="w-5 h-5" />, color: "bg-green-500" },
-    { label: t("admin.stat.customers"), value: customers.length.toString(), icon: <Users className="w-5 h-5" />, color: "bg-purple-500" },
+    { label: t("admin.stat.totalOrders"), value: orders.length.toString(), icon: <Package className="w-5 h-5" />, color: "from-blue-500 to-blue-600" },
+    { label: t("admin.stat.pendingOrders"), value: pendingOrders.toString(), icon: <Clock className="w-5 h-5" />, color: "from-amber-500 to-orange-500" },
+    { label: t("admin.stat.completedOrders"), value: completedOrders.toString(), icon: <CheckCircle2 className="w-5 h-5" />, color: "from-green-500 to-emerald-500" },
+    { label: t("admin.stat.customers"), value: customers.length.toString(), icon: <Users className="w-5 h-5" />, color: "from-purple-500 to-violet-500" },
   ];
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+          <span className="text-sm text-gray-400">Loading dashboard...</span>
+        </div>
       </div>
     );
   }
@@ -265,13 +283,13 @@ function AdminDashboard({ password }: { password: string }) {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 max-w-md w-full text-center">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md w-full text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <p className="text-gray-900 font-semibold mb-2">Something went wrong</p>
           <p className="text-sm text-gray-500 mb-4">{error}</p>
           <button
             onClick={fetchData}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-600 transition-all shadow-md"
           >
             Try Again
           </button>
@@ -282,21 +300,27 @@ function AdminDashboard({ password }: { password: string }) {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden bg-gradient-to-b from-blue-600 via-blue-700 to-indigo-900 py-12 md:py-16">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.1),transparent_60%)]" />
+        <div className="absolute inset-0 hero-grid opacity-20" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-blue-100 text-xs font-medium mb-3 tracking-wide">
+                <Sparkles className="w-3 h-3" />
+                Dashboard
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
                 {t("admin.title")}
               </h1>
-              <p className="text-blue-100 mt-2">
+              <p className="text-blue-100/70 mt-1">
                 {t("admin.subtitle")}
               </p>
             </div>
             <button
               onClick={requestNotifPermission}
-              className={`p-2.5 rounded-xl transition-colors ${
-                notifEnabled ? "bg-green-500/20 text-green-300" : "bg-white/10 text-blue-200 hover:bg-white/20"
+              className={`p-2.5 rounded-xl transition-all duration-200 ${
+                notifEnabled ? "bg-green-500/20 text-green-300 shadow-lg" : "bg-white/10 text-blue-200 hover:bg-white/20"
               }`}
               title={notifEnabled ? "Notifications enabled" : "Enable notifications"}
             >
@@ -307,7 +331,11 @@ function AdminDashboard({ password }: { password: string }) {
       </section>
 
       {newOrderCount > 0 && activeTab !== "orders" && (
-        <div className="bg-red-50 border-b border-red-200">
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border-b border-red-200"
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
             <BellRing className="w-5 h-5 text-red-500 animate-pulse" />
             <p className="text-sm text-red-700 font-medium">
@@ -320,20 +348,23 @@ function AdminDashboard({ password }: { password: string }) {
               View Orders
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
 
       <section className="py-8 md:py-12 bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat) => (
-              <div
+              <motion.div
                 key={stat.label}
-                className="bg-white rounded-xl border border-gray-100 shadow-sm p-5"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 card-hover"
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-gray-500">{stat.label}</span>
-                  <div className={`w-9 h-9 ${stat.color} rounded-lg flex items-center justify-center text-white`}>
+                  <div className={`w-9 h-9 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center text-white shadow-sm`}>
                     {stat.icon}
                   </div>
                 </div>
@@ -342,7 +373,7 @@ function AdminDashboard({ password }: { password: string }) {
                   <TrendingUp className="w-3 h-3" />
                   Live from database
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -374,29 +405,35 @@ function AdminDashboard({ password }: { password: string }) {
                 </button>
               </div>
               {setupStatus === "success" && (
-                <p className="text-green-700 text-xs mt-2">{setupMessage}</p>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-green-700 text-xs mt-2"
+                >
+                  {setupMessage}
+                </motion.p>
               )}
             </div>
           )}
 
           <div className="flex gap-1 bg-white rounded-xl border border-gray-100 shadow-sm p-1 w-fit flex-wrap">
-              {([
-                { key: "orders" as const, label: t("admin.tab.orders"), badge: newOrderCount },
-                { key: "customers" as const, label: t("admin.tab.customers") },
-                { key: "reviews" as const, label: "Reviews" },
-                { key: "contacts" as const, label: t("admin.tab.contacts") },
-                { key: "chat" as const, label: t("admin.tab.chat") },
-              ]).map((tab: { key: string; label: string; badge?: number }) => (
+            {([
+              { key: "orders" as const, label: t("admin.tab.orders"), badge: newOrderCount },
+              { key: "customers" as const, label: t("admin.tab.customers") },
+              { key: "reviews" as const, label: "Reviews" },
+              { key: "contacts" as const, label: t("admin.tab.contacts") },
+              { key: "chat" as const, label: t("admin.tab.chat") },
+            ]).map((tab: { key: string; label: string; badge?: number }) => (
               <button
                 key={tab.key}
                 onClick={() => {
                   setActiveTab(tab.key as typeof activeTab);
                   if (tab.key === "orders") setNewOrderCount(0);
                 }}
-                className={`px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                   activeTab === tab.key
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-500 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 }`}
               >
                 {tab.label}
@@ -420,7 +457,7 @@ function AdminDashboard({ password }: { password: string }) {
                     placeholder={t("admin.search")}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                   />
                 </div>
               </div>
@@ -482,7 +519,7 @@ function AdminDashboard({ password }: { password: string }) {
                             <select
                               value={order.status}
                               onChange={(e) => updateStatus(order.order_id, e.target.value as OrderStatus)}
-                              className="px-2 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                             >
                               {STATUSES.map((s) => (
                                 <option key={s} value={s}>{s}</option>
@@ -528,7 +565,7 @@ function AdminDashboard({ password }: { password: string }) {
                         <tr key={i} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm">
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm">
                                 {c.name?.charAt(0) || "?"}
                               </div>
                               <span className="font-medium text-gray-800">{c.name}</span>
@@ -612,7 +649,7 @@ function AdminDashboard({ password }: { password: string }) {
               <p className="text-sm text-gray-400 mb-4">
                 Review AI chatbot conversations and escalate when needed.
               </p>
-              <button className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
+              <button className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-600 transition-all shadow-md">
                 View Conversations
               </button>
             </div>

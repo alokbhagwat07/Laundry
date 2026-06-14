@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Send, CheckCircle2 } from "lucide-react";
+import { Star, Send, CheckCircle2, MessageSquare } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ReviewForm({ orderId }: { orderId?: string }) {
   const [name, setName] = useState("");
@@ -41,20 +42,32 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
 
   if (submitted) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-8 text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="glass rounded-2xl shadow-xl p-8 text-center"
+      >
+        <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-8 h-8 text-green-600" />
         </div>
         <h3 className="text-xl font-bold text-gray-900 mb-2">Thank You!</h3>
-        <p className="text-gray-500">Your review helps us serve you better. 🙏</p>
-      </div>
+        <p className="text-gray-500">Your review helps us serve you better.</p>
+      </motion.div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 md:p-8">
-      <h3 className="text-lg font-bold text-gray-900 mb-1">Leave a Review</h3>
-      <p className="text-sm text-gray-400 mb-5">Share your experience with us</p>
+    <div className="glass rounded-2xl shadow-xl p-6 md:p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center">
+          <MessageSquare className="w-5 h-5 text-blue-600" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-gray-900">Leave a Review</h3>
+          <p className="text-sm text-gray-400">Share your experience with us</p>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -63,28 +76,31 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
         />
 
-        <div className="flex gap-1">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              type="button"
-              onClick={() => setRating(star)}
-              onMouseEnter={() => setHover(star)}
-              onMouseLeave={() => setHover(0)}
-              className="p-0.5 transition-transform hover:scale-110"
-            >
-              <Star
-                className={`w-6 h-6 ${
-                  star <= (hover || rating)
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-gray-300"
-                }`}
-              />
-            </button>
-          ))}
+        <div>
+          <p className="text-xs text-gray-400 mb-2 font-medium">Your Rating</p>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setRating(star)}
+                onMouseEnter={() => setHover(star)}
+                onMouseLeave={() => setHover(0)}
+                className="p-0.5 transition-all hover:scale-110 active:scale-95"
+              >
+                <Star
+                  className={`w-7 h-7 ${
+                    star <= (hover || rating)
+                      ? "text-yellow-400 fill-yellow-400 drop-shadow-sm"
+                      : "text-gray-300"
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
         </div>
 
         <textarea
@@ -93,18 +109,41 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
           onChange={(e) => setComment(e.target.value)}
           required
           rows={3}
-          className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none placeholder:text-gray-400"
         />
 
-        {error && (
-          <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2">{error}</p>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2 border border-red-100"
+            >
+              {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
+
         <button
           type="submit"
           disabled={!name.trim() || rating === 0 || !comment.trim() || sending}
-          className="flex items-center justify-center gap-2 w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-200/50 hover:shadow-blue-300/50 active:scale-[0.98]"
         >
-          {sending ? "Submitting..." : <>Submit Review <Send className="w-3.5 h-3.5" /></>}
+          {sending ? (
+            <span className="flex items-center gap-2">
+              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+              </svg>
+              Submitting...
+            </span>
+          ) : (
+            <>
+              Submit Review
+              <Send className="w-3.5 h-3.5" />
+            </>
+          )}
         </button>
       </form>
     </div>

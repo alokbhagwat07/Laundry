@@ -24,6 +24,7 @@ export default function FloatingChat() {
             width: "380px",
             maxWidth: "calc(100vw - 32px)",
           }}
+          className="animate-scale-in"
         >
           <Chatbot onClose={() => setOpen(false)} />
         </div>
@@ -43,17 +44,24 @@ export default function FloatingChat() {
           width: "56px",
           height: "56px",
           borderRadius: "50%",
-          background: "#2563eb",
+          background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
           border: "none",
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: "0 4px 16px rgba(37, 99, 235, 0.4)",
-          transition: "transform 0.2s",
+          boxShadow: "0 4px 20px rgba(37, 99, 235, 0.4)",
+          transition: "transform 0.2s, box-shadow 0.2s",
         }}
-        onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-        onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        className="hover:scale-110 active:scale-95 animate-pulse-glow"
+        onMouseOver={(e) => {
+          e.currentTarget.style.transform = "scale(1.1)";
+          e.currentTarget.style.boxShadow = "0 6px 28px rgba(37, 99, 235, 0.5)";
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.boxShadow = "0 4px 20px rgba(37, 99, 235, 0.4)";
+        }}
         aria-label="Chat"
       >
         {open ? (
