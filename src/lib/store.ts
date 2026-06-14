@@ -19,12 +19,27 @@ function rowToOrder(row: Record<string, unknown>): Order {
   };
 }
 
+function isTableNotFound(err: unknown): boolean {
+  return (
+    err != null &&
+    typeof err === "object" &&
+    "code" in err &&
+    (err as Record<string, unknown>).code === "PGRST205"
+  );
+}
+
+const memOrders: Order[] = [];
+const memCustomers: { name: string; mobile: string; address: string; created_at: string }[] = [];
+const memContacts: Contact[] = [];
+let memOrderIdSeq = 0;
+
 export async function getAllOrders(): Promise<Order[]> {
   const { data, error } = await supabase
     .from("orders")
     .select("*")
     .order("created_at", { ascending: false });
 
+  if (isTableNotFound(error)) return [...memOrders];
   if (error) {
     console.error("Failed to fetch orders:", error);
     return [];
@@ -39,6 +54,7 @@ export async function getOrderByOrderId(orderId: string): Promise<Order | null> 
     .eq("order_id", orderId)
     .single();
 
+  if (isTableNotFound(error)) return memOrders.find((o) => o.order_id === orderId) || null;
   if (error || !data) return null;
   return rowToOrder(data);
 }
@@ -51,19 +67,24 @@ export async function createOrder(order: Order): Promise<Order> {
     customer_name: order.customer_name,
     customer_mobile: order.customer_mobile,
     customer_address: order.customer_address,
-    items: JSON.stringify(order.items),
+    items: order.items,
     total_amount: order.total_amount,
     pickup_date: order.pickup_date,
     pickup_time: order.pickup_time,
-    service_type: "service_type" in order ? (order as Record<string, unknown>).service_type as string : "press",
+    service_type: (order as unknown as Record<string, unknown>).service_type as string || "press",
     status: order.status,
     created_at: order.created_at,
     updated_at: order.updated_at,
   });
 
+  if (isTableNotFound(error)) {
+    memOrders.push(order);
+    return order;
+  }
+
   if (error) {
     console.error("Failed to create order:", error);
-    throw new Error("Failed to create order");
+    throw new Error(error.message || "Failed to create order");
   }
   return order;
 }
@@ -77,6 +98,13 @@ export async function updateOrderStatus(
     .from("orders")
     .update({ status, updated_at: updatedAt })
     .eq("order_id", orderId);
+
+  if (isTableNotFound(error)) {
+    const idx = memOrders.findIndex((o) => o.order_id === orderId);
+    if (idx === -1) return null;
+    memOrders[idx] = { ...memOrders[idx], status, updated_at: updatedAt };
+    return memOrders[idx];
+  }
 
   if (error) {
     console.error("Failed to update order status:", error);
@@ -94,12 +122,15 @@ export interface Review {
   created_at: string;
 }
 
+const memReviews: Review[] = [];
+
 export async function getAllReviews(): Promise<Review[]> {
   const { data, error } = await supabase
     .from("reviews")
     .select("*")
     .order("created_at", { ascending: false });
 
+  if (isTableNotFound(error)) return [...memReviews];
   if (error) {
     console.error("Failed to fetch reviews:", error);
     return [];
@@ -112,6 +143,12 @@ export async function deleteReview(id: number): Promise<boolean> {
     .from("reviews")
     .delete()
     .eq("id", id);
+
+  if (isTableNotFound(error)) {
+    const idx = memReviews.findIndex((r) => r.id === id);
+    if (idx !== -1) memReviews.splice(idx, 1);
+    return true;
+  }
 
   if (error) {
     console.error("Failed to delete review:", error);
@@ -134,6 +171,19 @@ export async function createReview(review: Omit<Review, "id" | "created_at">): P
     .select()
     .single();
 
+  if (isTableNotFound(error)) {
+    const newReview: Review = {
+      id: memReviews.length + 1,
+      customer_name: review.customer_name,
+      rating: review.rating,
+      comment: review.comment,
+      order_id: review.order_id || "",
+      created_at: createdAt,
+    };
+    memReviews.push(newReview);
+    return newReview;
+  }
+
   if (error) {
     console.error("Failed to create review:", error);
     throw new Error("Failed to create review");
@@ -155,6 +205,11 @@ export async function upsertCustomer(customer: {
     { onConflict: "mobile", ignoreDuplicates: false }
   );
 
+  if (isTableNotFound(error)) {
+    memCustomers.push({ ...customer, created_at: new Date().toISOString() });
+    return;
+  }
+
   if (error) {
     console.error("Failed to upsert customer:", error);
   }
@@ -166,6 +221,7 @@ export async function getCustomers(): Promise<{ name: string; mobile: string; ad
     .select("name, mobile, address, created_at")
     .order("created_at", { ascending: false });
 
+  if (isTableNotFound(error)) return [...memCustomers];
   if (error) {
     console.error("Failed to fetch customers:", error);
     return [];
@@ -179,6 +235,7 @@ export async function getContacts(): Promise<Contact[]> {
     .select("*")
     .order("created_at", { ascending: false });
 
+  if (isTableNotFound(error)) return [...memContacts];
   if (error) {
     console.error("Failed to fetch contacts:", error);
     return [];
@@ -199,6 +256,19 @@ export async function createContact(contact: Omit<Contact, "id" | "created_at">)
     })
     .select()
     .single();
+
+  if (isTableNotFound(error)) {
+    const newContact: Contact = {
+      id: memContacts.length + 1,
+      name: contact.name,
+      email: contact.email || "",
+      mobile: contact.mobile,
+      message: contact.message,
+      created_at: createdAt,
+    };
+    memContacts.push(newContact);
+    return newContact;
+  }
 
   if (error) {
     console.error("Failed to create contact:", error);

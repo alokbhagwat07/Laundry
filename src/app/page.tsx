@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Sparkles,
   ShieldCheck,
   Truck,
   Clock,
@@ -31,10 +30,6 @@ const FEATURES = [
     icon: <Clock className="w-6 h-6" />,
   },
   {
-    key: "ai",
-    icon: <Sparkles className="w-6 h-6" />,
-  },
-  {
     key: "star",
     icon: <Star className="w-6 h-6" />,
   },
@@ -55,12 +50,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6">
-              <Sparkles className="w-4 h-4 text-yellow-300" />
-              <span className="text-sm text-white/90 font-medium">
-                {t("home.hero.badge")}
-              </span>
-            </div>
+
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-5">
               {t("home.hero.title")}
               <span className="text-blue-200"> {t("home.hero.titleHighlight")}</span>

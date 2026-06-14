@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { getAllOrders, createOrder, upsertCustomer } from "@/lib/store";
 import type { Order } from "@/lib/types";
 import twilio from "twilio";
-
-const OWNER_WHATSAPP = "+919545528747";
+import { Resend } from "resend";
+import { sendTelegramMessage } from "@/lib/telegram";
 
 function isAdmin(request: Request): boolean {
   const password = request.headers.get("x-admin-password");
@@ -16,6 +16,12 @@ function getTwilioClient() {
   const token = process.env.TWILIO_AUTH_TOKEN;
   if (!sid || !token) return null;
   return twilio(sid, token);
+}
+
+function getResendClient() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  return new Resend(key);
 }
 
 function formatPhone(num: string): string {
@@ -36,31 +42,84 @@ async function sendWhatsAppNotifications(order: Order) {
     }
 
     const from = process.env.TWILIO_WHATSAPP_NUMBER || "+14155238886";
+    const businessNumber = process.env.BUSINESS_WHATSAPP_NUMBER || "+919545528747";
+    const itemsSummary = order.items.map((i) => `${i.quantity}x ${i.name}`).join(", ");
 
-    const itemsSummary = order.items
-      .map((i) => `${i.quantity}x ${i.name}`)
-      .join(", ");
+    const msgToBusiness = `🚨 *New Laundry Order Received*\n\nOrder ID: ${order.order_id}\nCustomer: ${order.customer_name}\nMobile: ${order.customer_mobile}\nAddress: ${order.customer_address}\nPickup Date: ${order.pickup_date}\nPickup Time: ${order.pickup_time}\nTotal Amount: ₹${order.total_amount}`;
 
-    const msgToOwner = `🆕 *New Order Received!*\n\n📋 Order: ${order.order_id}\n👤 Name: ${order.customer_name}\n📱 Phone: ${order.customer_mobile}\n📍 Address: ${order.customer_address}\n📅 Pickup: ${order.pickup_date} at ${order.pickup_time}\n🧺 Items: ${itemsSummary}\n💰 Total: ₹${order.total_amount}\n\nLogin: https://maulilaundry.vercel.app/admin`;
-
-    const ownerMsg = await client.messages.create({
-      body: msgToOwner,
+    await client.messages.create({
+      body: msgToBusiness,
       from: `whatsapp:${from}`,
-      to: `whatsapp:${OWNER_WHATSAPP}`,
+      to: `whatsapp:${businessNumber}`,
     });
-    console.log("Owner WhatsApp sent:", ownerMsg.sid);
+    console.log("Business WhatsApp notification sent");
 
     const customerPhone = formatPhone(order.customer_mobile);
     const msgToCustomer = `✅ *Order Confirmed!*\n\nHi ${order.customer_name}, your laundry pickup has been booked successfully.\n\n📋 Order ID: ${order.order_id}\n📅 Pickup: ${order.pickup_date} at ${order.pickup_time}\n🧺 Items: ${itemsSummary}\n💰 Total: ₹${order.total_amount}\n\nTrack: https://maulilaundry.vercel.app/tracking\n\n*Note:* Reply with JOIN to receive WhatsApp updates from Mauli Laundry. 🙏`;
 
-    const customerMsg = await client.messages.create({
+    await client.messages.create({
       body: msgToCustomer,
       from: `whatsapp:${from}`,
       to: `whatsapp:${customerPhone}`,
     });
-    console.log("Customer WhatsApp sent:", customerMsg.sid);
+    console.log("Customer WhatsApp sent");
   } catch (err) {
     console.error("WhatsApp notification failed:", err instanceof Error ? err.message : err);
+  }
+}
+
+async function sendEmailNotification(order: Order) {
+  try {
+    const resend = getResendClient();
+    if (!resend) {
+      console.warn("Resend not configured — skipping email");
+      return;
+    }
+
+    const businessEmail = process.env.BUSINESS_EMAIL;
+    if (!businessEmail) {
+      console.warn("BUSINESS_EMAIL not set — skipping email");
+      return;
+    }
+
+    const itemsHtml = order.items
+      .map((i) => `<tr><td style="padding:4px 12px">${i.quantity}x ${i.name}</td><td style="padding:4px 12px">₹${i.price}</td></tr>`)
+      .join("");
+
+    await resend.emails.send({
+      from: "Mauli Laundry <notifications@maulilaundry.com>",
+      to: businessEmail,
+      subject: `🚨 New Laundry Order Received - ${order.order_id}`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+          <div style="background:#2563eb;padding:20px;text-align:center">
+            <h1 style="color:#fff;margin:0;font-size:20px">🚨 New Laundry Order Received</h1>
+          </div>
+          <div style="padding:20px;background:#f9fafb">
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td style="padding:8px 0;color:#6b7280;font-size:14px">Order ID</td><td style="padding:8px 0;font-weight:600">${order.order_id}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;font-size:14px">Customer</td><td style="padding:8px 0;font-weight:600">${order.customer_name}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;font-size:14px">Mobile</td><td style="padding:8px 0;font-weight:600">${order.customer_mobile}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;font-size:14px">Address</td><td style="padding:8px 0;font-weight:600">${order.customer_address}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;font-size:14px">Pickup Date</td><td style="padding:8px 0;font-weight:600">${order.pickup_date}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;font-size:14px">Pickup Time</td><td style="padding:8px 0;font-weight:600">${order.pickup_time}</td></tr>
+            </table>
+            <h3 style="margin:16px 0 8px;font-size:16px">Items</h3>
+            <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:8px">
+              <thead><tr style="background:#f3f4f6"><th style="padding:8px 12px;text-align:left;font-size:13px">Item</th><th style="padding:8px 12px;text-align:left;font-size:13px">Price</th></tr></thead>
+              <tbody>${itemsHtml}</tbody>
+            </table>
+            <p style="font-size:18px;font-weight:700;margin:16px 0 0">Total: ₹${order.total_amount}</p>
+          </div>
+          <div style="padding:12px;text-align:center;color:#9ca3af;font-size:12px">
+            <p>Mauli Laundry — <a href="https://maulilaundry.vercel.app/admin" style="color:#2563eb">Admin Dashboard</a></p>
+          </div>
+        </div>
+      `,
+    });
+    console.log("Email notification sent");
+  } catch (err) {
+    console.error("Email notification failed:", err instanceof Error ? err.message : err);
   }
 }
 
@@ -90,6 +149,8 @@ export async function POST(request: Request) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
+    (order as unknown as Record<string, unknown>).service_type = body.service_type || "press";
+
     const created = await createOrder(order);
 
     upsertCustomer({
@@ -99,9 +160,22 @@ export async function POST(request: Request) {
     });
 
     sendWhatsAppNotifications(order);
+    sendEmailNotification(order);
+    sendTelegramMessage(
+      `🚨 NEW LAUNDRY ORDER\n\n` +
+      `Order ID: ${order.order_id}\n\n` +
+      `Customer: ${order.customer_name}\n` +
+      `Mobile: ${order.customer_mobile}\n` +
+      `Address: ${order.customer_address}\n\n` +
+      `Pickup Date: ${order.pickup_date}\n` +
+      `Pickup Time: ${order.pickup_time}\n\n` +
+      `Total Amount: ₹${order.total_amount}\n\n` +
+      `Order Time: ${order.created_at}`
+    );
 
     return NextResponse.json(created, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Invalid request";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, startTransition } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, startTransition } from "react";
 import {
   Package,
   Users,
@@ -17,6 +17,9 @@ import {
   Mail,
   Phone,
   AlertCircle,
+  Database,
+  Bell,
+  BellRing,
 } from "lucide-react";
 import type { Order, OrderStatus } from "@/lib/types";
 import { useLanguage } from "@/lib/LanguageContext";
@@ -104,6 +107,70 @@ function AdminDashboard({ password }: { password: string }) {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"orders" | "customers" | "reviews" | "contacts" | "chat">("orders");
+  const [setupStatus, setSetupStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [setupMessage, setSetupMessage] = useState("");
+  const [newOrderCount, setNewOrderCount] = useState(0);
+  const [notifEnabled, setNotifEnabled] = useState(false);
+  const prevOrderCountRef = useRef(0);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const playNotificationSound = useCallback(() => {
+    try {
+      if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
+      const ctx = audioCtxRef.current;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.setValueAtTime(1000, ctx.currentTime + 0.1);
+      osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch {
+    }
+  }, []);
+
+  const showBrowserNotification = useCallback((order: Order) => {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+      new Notification("🚨 New Order Received!", {
+        body: `${order.customer_name} - ₹${order.total_amount}`,
+        icon: "/favicon.ico",
+      });
+    }
+  }, []);
+
+  const requestNotifPermission = useCallback(async () => {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "default") {
+      const result = await Notification.requestPermission();
+      setNotifEnabled(result === "granted");
+    } else {
+      setNotifEnabled(Notification.permission === "granted");
+    }
+  }, []);
+
+  const handleSetup = async () => {
+    setSetupStatus("loading");
+    try {
+      const res = await fetch("/api/setup", { headers });
+      const data = await res.json();
+      if (res.ok) {
+        setSetupStatus("success");
+        setSetupMessage(data.message);
+        fetchData();
+      } else {
+        setSetupStatus("error");
+        setSetupMessage(data.error || data.hint || "Setup failed");
+      }
+    } catch {
+      setSetupStatus("error");
+      setSetupMessage("Network error");
+    }
+  };
 
   const headers = useMemo(() => ({
     "Content-Type": "application/json",
@@ -120,7 +187,15 @@ function AdminDashboard({ password }: { password: string }) {
         fetch("/api/contacts", { headers }),
       ]);
       if (ordersRes.ok) {
-        const data = await ordersRes.json();
+        const data: Order[] = await ordersRes.json();
+        const prevCount = prevOrderCountRef.current;
+        if (prevCount > 0 && data.length > prevCount) {
+          const newOrders = data.slice(0, data.length - prevCount);
+          setNewOrderCount((c) => c + newOrders.length);
+          playNotificationSound();
+          newOrders.forEach((o) => showBrowserNotification(o));
+        }
+        prevOrderCountRef.current = data.length;
         startTransition(() => setOrders(data));
       }
       if (customersRes.ok) {
@@ -136,9 +211,16 @@ function AdminDashboard({ password }: { password: string }) {
       startTransition(() => setError("Failed to load dashboard data. Please try again."));
     }
     startTransition(() => setLoading(false));
-  }, [headers]);
+  }, [headers, playNotificationSound, showBrowserNotification]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  useEffect(() => { requestNotifPermission(); }, [requestNotifPermission]);
+
+  useEffect(() => {
+    const interval = setInterval(fetchData, 10000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
   const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
@@ -202,14 +284,44 @@ function AdminDashboard({ password }: { password: string }) {
     <>
       <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            {t("admin.title")}
-          </h1>
-          <p className="text-blue-100 mt-2">
-            {t("admin.subtitle")}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white">
+                {t("admin.title")}
+              </h1>
+              <p className="text-blue-100 mt-2">
+                {t("admin.subtitle")}
+              </p>
+            </div>
+            <button
+              onClick={requestNotifPermission}
+              className={`p-2.5 rounded-xl transition-colors ${
+                notifEnabled ? "bg-green-500/20 text-green-300" : "bg-white/10 text-blue-200 hover:bg-white/20"
+              }`}
+              title={notifEnabled ? "Notifications enabled" : "Enable notifications"}
+            >
+              {notifEnabled ? <BellRing className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </section>
+
+      {newOrderCount > 0 && activeTab !== "orders" && (
+        <div className="bg-red-50 border-b border-red-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
+            <BellRing className="w-5 h-5 text-red-500 animate-pulse" />
+            <p className="text-sm text-red-700 font-medium">
+              {newOrderCount} new order{newOrderCount > 1 ? "s" : ""} received
+            </p>
+            <button
+              onClick={() => { setActiveTab("orders"); setNewOrderCount(0); }}
+              className="ml-auto text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              View Orders
+            </button>
+          </div>
+        </div>
+      )}
 
       <section className="py-8 md:py-12 bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -234,24 +346,66 @@ function AdminDashboard({ password }: { password: string }) {
             ))}
           </div>
 
+          {(orders.length === 0 || customers.length === 0) && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <Database className="w-5 h-5 text-amber-600" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-900">Database not set up</p>
+                    <p className="text-xs text-amber-700">
+                      {setupStatus === "error"
+                        ? setupMessage
+                        : "Tables are missing. Click to run schema setup."}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSetup}
+                  disabled={setupStatus === "loading"}
+                  className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {setupStatus === "loading" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Database className="w-4 h-4" />
+                  )}
+                  {setupStatus === "loading" ? "Setting up..." : setupStatus === "success" ? "Done!" : "Setup Database"}
+                </button>
+              </div>
+              {setupStatus === "success" && (
+                <p className="text-green-700 text-xs mt-2">{setupMessage}</p>
+              )}
+            </div>
+          )}
+
           <div className="flex gap-1 bg-white rounded-xl border border-gray-100 shadow-sm p-1 w-fit flex-wrap">
               {([
-                { key: "orders" as const, label: t("admin.tab.orders") },
+                { key: "orders" as const, label: t("admin.tab.orders"), badge: newOrderCount },
                 { key: "customers" as const, label: t("admin.tab.customers") },
                 { key: "reviews" as const, label: "Reviews" },
                 { key: "contacts" as const, label: t("admin.tab.contacts") },
                 { key: "chat" as const, label: t("admin.tab.chat") },
-              ]).map((tab) => (
+              ]).map((tab: { key: string; label: string; badge?: number }) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+                onClick={() => {
+                  setActiveTab(tab.key as typeof activeTab);
+                  if (tab.key === "orders") setNewOrderCount(0);
+                }}
+                className={`px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
                   activeTab === tab.key
                     ? "bg-blue-600 text-white shadow-sm"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 {tab.label}
+                {tab.badge && tab.badge > 0 ? (
+                  <span className="flex items-center gap-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] justify-center">
+                    <BellRing className="w-3 h-3" />
+                    {tab.badge > 9 ? "9+" : tab.badge}
+                  </span>
+                ) : null}
               </button>
             ))}
           </div>

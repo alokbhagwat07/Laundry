@@ -54,7 +54,7 @@ export default function BookingForm() {
         return { name, quantity, price: pricingItem ? getPrice(pricingItem, serviceType) : 0 };
       });
     try {
-      await fetch("/api/orders", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -69,8 +69,16 @@ export default function BookingForm() {
           service_type: serviceType,
         }),
       });
+      if (!res.ok) {
+        const errData = await res.json();
+        console.error("Order API error:", errData.error);
+        alert("Failed to place order: " + (errData.error || "Server error"));
+        return;
+      }
     } catch (err) {
       console.error("Failed to save order", err);
+      alert("Network error: Could not reach server. Please try again.");
+      return;
     }
     setSubmitted(true);
   };
