@@ -1,10 +1,38 @@
 "use client";
 
-import { Phone, Mail, MapPin, Clock, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { Phone, Mail, MapPin, Clock, MessageCircle, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
 
 export default function ContactPage() {
   const { t } = useLanguage();
+  const [form, setForm] = useState({ name: "", email: "", mobile: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError("");
+    try {
+      const res = await fetch("/api/contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+        setForm({ name: "", email: "", mobile: "", message: "" });
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to submit");
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    }
+    setSubmitting(false);
+  };
 
   return (
     <>
@@ -119,22 +147,97 @@ export default function ContactPage() {
 
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {t("contact.findUs")}
+                {t("contact.sendMessage")}
               </h2>
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-                <div className="aspect-video bg-gray-200 relative">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3783.0703190915358!2d73.89996257589269!3d18.53637608256767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c3f3c3c3c3c3%3A0x3c3c3c3c3c3c3c3c!2sAlandi%2C%20Pune%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0, position: "absolute", inset: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Mauli Laundry Location"
-                  />
+              <p className="text-gray-500">
+                {t("contact.sendMessageText")}
+              </p>
+
+              {submitted ? (
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-8 text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    {t("contact.messageSent")}
+                  </h3>
+                  <p className="text-gray-500 text-sm mb-4">
+                    {t("contact.messageSentText")}
+                  </p>
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    {t("contact.sendAnother")}
+                  </button>
                 </div>
-              </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 md:p-8 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      {t("contact.formName")} <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={form.name}
+                      onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+                      placeholder={t("contact.formNamePlaceholder")}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      {t("contact.formEmail")}
+                    </label>
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+                      placeholder={t("contact.formEmailPlaceholder")}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      {t("contact.formMobile")}
+                    </label>
+                    <input
+                      type="tel"
+                      value={form.mobile}
+                      onChange={(e) => setForm((p) => ({ ...p, mobile: e.target.value }))}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+                      placeholder={t("contact.formMobilePlaceholder")}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      {t("contact.formMessage")} <span className="text-red-400">*</span>
+                    </label>
+                    <textarea
+                      required
+                      value={form.message}
+                      onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))}
+                      rows={4}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+                      placeholder={t("contact.formMessagePlaceholder")}
+                    />
+                  </div>
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    {submitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                    {t("contact.sendMessage")}
+                  </button>
+                </form>
+              )}
 
               <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
                 <h3 className="font-bold text-lg mb-2">

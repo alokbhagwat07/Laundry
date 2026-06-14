@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAllReviews, createReview } from "@/lib/store";
 
 export async function GET() {
-  const reviews = getAllReviews();
+  const reviews = await getAllReviews();
   return NextResponse.json(reviews);
 }
 
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     if (rating < 1 || rating > 5) {
       return NextResponse.json({ error: "Rating must be between 1 and 5" }, { status: 400 });
     }
-    const review = createReview({
+    const review = await createReview({
       customer_name: body.customer_name,
       rating,
       comment: body.comment,

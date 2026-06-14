@@ -1,5 +1,4 @@
 import { PRICING, calculateTotal, getPrice } from "./pricing";
-import type { ServiceType } from "./types";
 
 interface ChatResponse {
   text: string;

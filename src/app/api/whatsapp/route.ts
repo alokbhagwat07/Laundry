@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getChatResponse } from "@/lib/chat-utils";
 
-const TWILIO_WHATSAPP_NUMBER = process.env.TWILIO_WHATSAPP_NUMBER || "+14155238886";
-
 function buildTwiML(message: string): string {
   const escaped = message
     .replace(/\*\*(.*?)\*\*/g, "$1")

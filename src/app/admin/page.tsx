@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, startTransition } from "react";
 import {
   Package,
   Users,
-  IndianRupee,
   MessageCircle,
   Clock,
   Search,
@@ -15,6 +14,9 @@ import {
   LogIn,
   Star,
   Trash2,
+  Mail,
+  Phone,
+  AlertCircle,
 } from "lucide-react";
 import type { Order, OrderStatus } from "@/lib/types";
 import { useLanguage } from "@/lib/LanguageContext";
@@ -96,26 +98,47 @@ export default function AdminPage() {
 function AdminDashboard({ password }: { password: string }) {
   const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [customers, setCustomers] = useState<{ name: string; mobile: string; address: string; created_at: string }[]>([]);
+  const [contacts, setContacts] = useState<{ id: number; name: string; email: string; mobile: string; message: string; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"orders" | "customers" | "chat" | "reviews">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "customers" | "reviews" | "contacts" | "chat">("orders");
 
-  const headers = {
+  const headers = useMemo(() => ({
     "Content-Type": "application/json",
     "x-admin-password": password,
-  };
+  }), [password]);
 
-  const fetchOrders = useCallback(async () => {
+  const fetchData = useCallback(async () => {
+    startTransition(() => setLoading(true));
+    startTransition(() => setError(null));
     try {
-      const res = await fetch("/api/orders", { headers });
-      if (res.ok) setOrders(await res.json());
+      const [ordersRes, customersRes, contactsRes] = await Promise.all([
+        fetch("/api/orders", { headers }),
+        fetch("/api/customers", { headers }),
+        fetch("/api/contacts", { headers }),
+      ]);
+      if (ordersRes.ok) {
+        const data = await ordersRes.json();
+        startTransition(() => setOrders(data));
+      }
+      if (customersRes.ok) {
+        const data = await customersRes.json();
+        startTransition(() => setCustomers(data));
+      }
+      if (contactsRes.ok) {
+        const data = await contactsRes.json();
+        startTransition(() => setContacts(data));
+      }
     } catch (e) {
-      console.error("Failed to fetch orders", e);
+      console.error("Failed to fetch data", e);
+      startTransition(() => setError("Failed to load dashboard data. Please try again."));
     }
-    setLoading(false);
-  }, []);
+    startTransition(() => setLoading(false));
+  }, [headers]);
 
-  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
@@ -139,21 +162,38 @@ function AdminDashboard({ password }: { password: string }) {
       o.customer_name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalRevenue = orders.reduce((sum, o) => sum + o.total_amount, 0);
-  const activeOrders = orders.filter((o) => o.status !== "Delivered").length;
-  const uniqueCustomers = new Set(orders.map((o) => o.customer_mobile)).size;
+  const pendingOrders = orders.filter((o) => o.status !== "Delivered").length;
+  const completedOrders = orders.filter((o) => o.status === "Delivered").length;
 
   const stats = [
-    { label: "Total Orders", value: orders.length.toString(), icon: <Package className="w-5 h-5" />, color: "bg-blue-500" },
-    { label: "Active Orders", value: activeOrders.toString(), icon: <Clock className="w-5 h-5" />, color: "bg-amber-500" },
-    { label: "Total Revenue", value: `₹${totalRevenue}`, icon: <IndianRupee className="w-5 h-5" />, color: "bg-green-500" },
-    { label: "Customers", value: uniqueCustomers.toString(), icon: <Users className="w-5 h-5" />, color: "bg-purple-500" },
+    { label: t("admin.stat.totalOrders"), value: orders.length.toString(), icon: <Package className="w-5 h-5" />, color: "bg-blue-500" },
+    { label: t("admin.stat.pendingOrders"), value: pendingOrders.toString(), icon: <Clock className="w-5 h-5" />, color: "bg-amber-500" },
+    { label: t("admin.stat.completedOrders"), value: completedOrders.toString(), icon: <CheckCircle2 className="w-5 h-5" />, color: "bg-green-500" },
+    { label: t("admin.stat.customers"), value: customers.length.toString(), icon: <Users className="w-5 h-5" />, color: "bg-purple-500" },
   ];
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 max-w-md w-full text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <p className="text-gray-900 font-semibold mb-2">Something went wrong</p>
+          <p className="text-sm text-gray-500 mb-4">{error}</p>
+          <button
+            onClick={fetchData}
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
@@ -194,11 +234,12 @@ function AdminDashboard({ password }: { password: string }) {
             ))}
           </div>
 
-          <div className="flex gap-1 bg-white rounded-xl border border-gray-100 shadow-sm p-1 w-fit">
+          <div className="flex gap-1 bg-white rounded-xl border border-gray-100 shadow-sm p-1 w-fit flex-wrap">
               {([
                 { key: "orders" as const, label: t("admin.tab.orders") },
                 { key: "customers" as const, label: t("admin.tab.customers") },
                 { key: "reviews" as const, label: "Reviews" },
+                { key: "contacts" as const, label: t("admin.tab.contacts") },
                 { key: "chat" as const, label: t("admin.tab.chat") },
               ]).map((tab) => (
               <button
@@ -308,34 +349,105 @@ function AdminDashboard({ password }: { password: string }) {
           )}
 
           {activeTab === "customers" && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-8 text-center">
-              <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                Customer Management
-              </h3>
-              <p className="text-sm text-gray-400 mb-4">
-                View and manage your customer base. ({uniqueCustomers} registered customers)
-              </p>
-              <div className="max-w-md mx-auto space-y-2 text-left">
-                {Array.from(new Set(orders.map((o) => o.customer_mobile))).slice(0, 10).map((mobile) => {
-                  const customer = orders.find((o) => o.customer_mobile === mobile);
-                  return (
-                    <div key={mobile} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm">
-                        {customer?.customer_name?.charAt(0) || "?"}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-800">{customer?.customer_name}</p>
-                        <p className="text-xs text-gray-400">{mobile}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <p className="text-sm text-gray-500">Total Customers: {customers.length}</p>
               </div>
+              {customers.length === 0 ? (
+                <div className="p-8 text-center">
+                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-600 font-medium">No customers yet</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                        <th className="text-left px-4 py-3 font-medium">Name</th>
+                        <th className="text-left px-4 py-3 font-medium">Mobile</th>
+                        <th className="text-left px-4 py-3 font-medium">Address</th>
+                        <th className="text-left px-4 py-3 font-medium">Registered</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {customers.map((c, i) => (
+                        <tr key={i} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm">
+                                {c.name?.charAt(0) || "?"}
+                              </div>
+                              <span className="font-medium text-gray-800">{c.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">{c.mobile}</td>
+                          <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{c.address}</td>
+                          <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                            {new Date(c.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === "reviews" && <ReviewsSection password={password} />}
+
+          {activeTab === "contacts" && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <p className="text-sm text-gray-500">Total Submissions: {contacts.length}</p>
+              </div>
+              {contacts.length === 0 ? (
+                <div className="p-8 text-center">
+                  <Mail className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-600 font-medium">No contact submissions yet</p>
+                  <p className="text-sm text-gray-400 mt-1">Form submissions from the contact page will appear here.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                        <th className="text-left px-4 py-3 font-medium">Name</th>
+                        <th className="text-left px-4 py-3 font-medium">Contact</th>
+                        <th className="text-left px-4 py-3 font-medium">Message</th>
+                        <th className="text-left px-4 py-3 font-medium">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {contacts.map((c) => (
+                        <tr key={c.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-4 py-3 font-medium text-gray-800">{c.name}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-col gap-0.5">
+                              {c.mobile && (
+                                <span className="text-xs text-gray-600 flex items-center gap-1">
+                                  <Phone className="w-3 h-3" /> {c.mobile}
+                                </span>
+                              )}
+                              {c.email && (
+                                <span className="text-xs text-gray-600 flex items-center gap-1">
+                                  <Mail className="w-3 h-3" /> {c.email}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-gray-600 max-w-xs truncate">{c.message}</td>
+                          <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                            {new Date(c.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
 
           {activeTab === "chat" && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-8 text-center">
@@ -360,16 +472,25 @@ function AdminDashboard({ password }: { password: string }) {
 function ReviewsSection({ password }: { password: string }) {
   const [reviews, setReviews] = useState<{ id: number; customer_name: string; rating: number; comment: string; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
 
   const fetchReviews = useCallback(async () => {
+    startTransition(() => setLoading(true));
+    startTransition(() => setError(null));
     try {
       const res = await fetch("/api/reviews");
-      if (res.ok) setReviews(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        startTransition(() => setReviews(data));
+      } else {
+        startTransition(() => setError("Failed to load reviews"));
+      }
     } catch (e) {
       console.error("Failed to fetch reviews", e);
+      startTransition(() => setError("Failed to load reviews"));
     }
-    setLoading(false);
+    startTransition(() => setLoading(false));
   }, []);
 
   useEffect(() => { fetchReviews(); }, [fetchReviews]);
@@ -393,6 +514,18 @@ function ReviewsSection({ password }: { password: string }) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-12 text-center">
         <Loader2 className="w-6 h-6 text-blue-600 animate-spin mx-auto" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-8 text-center">
+        <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
+        <p className="text-gray-600">{error}</p>
+        <button onClick={fetchReviews} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">
+          Retry
+        </button>
       </div>
     );
   }

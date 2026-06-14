@@ -74,3 +74,12 @@ export interface ServiceItem {
   icon: string;
   features: string[];
 }
+
+export interface Contact {
+  id: number;
+  name: string;
+  email: string;
+  mobile: string;
+  message: string;
+  created_at: string;
+}

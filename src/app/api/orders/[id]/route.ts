@@ -9,11 +9,11 @@ function isAdmin(request: Request): boolean {
 }
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const order = getOrderByOrderId(id);
+  const order = await getOrderByOrderId(id);
   if (!order) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
@@ -31,7 +31,7 @@ export async function PATCH(
   try {
     const body = await request.json();
     const status = body.status as Order["status"];
-    const updated = updateOrderStatus(id, status);
+    const updated = await updateOrderStatus(id, status);
     if (!updated) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }

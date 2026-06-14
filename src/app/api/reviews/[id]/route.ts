@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { deleteReview } from "@/lib/store";
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const password = _request.headers.get("x-admin-password");
+  const password = request.headers.get("x-admin-password");
   if (password !== process.env.ADMIN_PASSWORD) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -16,7 +16,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Invalid review ID" }, { status: 400 });
   }
 
-  const deleted = deleteReview(id);
+  const deleted = await deleteReview(id);
   if (!deleted) {
     return NextResponse.json({ error: "Review not found" }, { status: 404 });
   }

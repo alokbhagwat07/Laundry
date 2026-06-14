@@ -56,7 +56,7 @@ export default function FloatingWhatsApp() {
         setMessages((prev) => [...prev, { role: "bot" as const, content: "Sorry, something went wrong. Please try again." }]);
       }
       setWaiting(false);
-    }, 500 + Math.random() * 500);
+    }, 500 + (crypto.getRandomValues(new Uint32Array(1))[0] % 501));
   };
 
   return (

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllOrders, createOrder } from "@/lib/store";
+import { getAllOrders, createOrder, upsertCustomer } from "@/lib/store";
 import type { Order } from "@/lib/types";
 import twilio from "twilio";
 
@@ -59,8 +59,8 @@ async function sendWhatsAppNotifications(order: Order) {
       to: `whatsapp:${customerPhone}`,
     });
     console.log("Customer WhatsApp sent:", customerMsg.sid);
-  } catch (err: any) {
-    console.error("WhatsApp notification failed:", err.message, err.code, err.moreInfo);
+  } catch (err) {
+    console.error("WhatsApp notification failed:", err instanceof Error ? err.message : err);
   }
 }
 
@@ -68,7 +68,7 @@ export async function GET(request: Request) {
   if (!isAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const orders = getAllOrders();
+  const orders = await getAllOrders();
   return NextResponse.json(orders);
 }
 
@@ -90,7 +90,13 @@ export async function POST(request: Request) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
-    const created = createOrder(order);
+    const created = await createOrder(order);
+
+    upsertCustomer({
+      name: body.customer_name,
+      mobile: body.customer_mobile,
+      address: body.customer_address,
+    });
 
     sendWhatsAppNotifications(order);
 
