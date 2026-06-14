@@ -23,7 +23,9 @@ export async function POST(request: Request) {
       order_id: body.order_id || "",
     });
     return NextResponse.json(review, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Invalid request";
+    console.error("Failed to create review:", err);
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

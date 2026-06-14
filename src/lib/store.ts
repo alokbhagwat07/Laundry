@@ -130,7 +130,10 @@ export async function getAllReviews(): Promise<Review[]> {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (isTableNotFound(error)) return [...memReviews];
+  if (isTableNotFound(error)) {
+    console.warn("Supabase reviews table not found — using in-memory storage (data will NOT persist after server restart)");
+    return [...memReviews];
+  }
   if (error) {
     console.error("Failed to fetch reviews:", error);
     return [];
@@ -172,6 +175,7 @@ export async function createReview(review: Omit<Review, "id" | "created_at">): P
     .single();
 
   if (isTableNotFound(error)) {
+    console.warn("Supabase reviews table not found — storing review in memory (will NOT persist after server restart)");
     const newReview: Review = {
       id: memReviews.length + 1,
       customer_name: review.customer_name,
@@ -186,7 +190,7 @@ export async function createReview(review: Omit<Review, "id" | "created_at">): P
 
   if (error) {
     console.error("Failed to create review:", error);
-    throw new Error("Failed to create review");
+    throw new Error(error.message || "Failed to create review");
   }
   return data as Review;
 }

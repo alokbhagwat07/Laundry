@@ -10,13 +10,15 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || rating === 0 || !comment.trim()) return;
     setSending(true);
+    setError("");
     try {
-      await fetch("/api/reviews", {
+      const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -26,9 +28,13 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
           order_id: orderId || "",
         }),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Failed to submit review");
+      }
       setSubmitted(true);
-    } catch {
-      alert("Failed to submit review. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     }
     setSending(false);
   };
@@ -90,6 +96,9 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
           className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         />
 
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2">{error}</p>
+        )}
         <button
           type="submit"
           disabled={!name.trim() || rating === 0 || !comment.trim() || sending}
