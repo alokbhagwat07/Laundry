@@ -26,6 +26,13 @@ export interface Order {
   status: OrderStatus;
   created_at: string;
   updated_at: string;
+  payment_id?: string;
+  razorpay_order_id?: string;
+  amount_paid?: number;
+  payment_status?: PaymentStatus;
+  payment_method?: string;
+  payment_date?: string;
+  payment_mode?: PaymentMode;
 }
 
 export type OrderStatus =
@@ -35,6 +42,9 @@ export type OrderStatus =
   | "Ironing"
   | "Out for Delivery"
   | "Delivered";
+
+export type PaymentStatus = "Pending" | "Paid" | "Failed" | "Refunded";
+export type PaymentMode = "online" | "cod" | "pay_later";
 
 export interface ChatMessage {
   id: string;

@@ -68,6 +68,8 @@ export default function BookingForm() {
           pickup_date: form.pickupDate,
           pickup_time: form.pickupTime,
           service_type: serviceType,
+          payment_mode: "cod",
+          payment_status: "Pending",
         }),
       });
       if (!res.ok) {

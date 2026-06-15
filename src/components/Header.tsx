@@ -12,6 +12,7 @@ const LINKS = [
   { key: "nav.services", href: "/services" },
   { key: "nav.pricing", href: "/pricing" },
   { key: "nav.booking", href: "/booking" },
+  { key: "nav.payment", href: "/payment" },
   { key: "nav.tracking", href: "/tracking" },
   { key: "nav.contact", href: "/contact" },
 ];

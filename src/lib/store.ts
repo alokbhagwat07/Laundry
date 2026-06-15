@@ -1,4 +1,4 @@
-import type { Order, Contact } from "./types";
+import type { Order, Contact, PaymentStatus } from "./types";
 import { supabase } from "./supabase";
 
 function rowToOrder(row: Record<string, unknown>): Order {
@@ -16,6 +16,13 @@ function rowToOrder(row: Record<string, unknown>): Order {
     status: row.status as Order["status"],
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
+    payment_id: (row.payment_id as string) || undefined,
+    razorpay_order_id: (row.razorpay_order_id as string) || undefined,
+    amount_paid: row.amount_paid ? Number(row.amount_paid) : undefined,
+    payment_status: (row.payment_status as PaymentStatus) || "Pending",
+    payment_method: (row.payment_method as string) || undefined,
+    payment_date: (row.payment_date as string) || undefined,
+    payment_mode: (row.payment_mode as "online" | "cod" | "pay_later") || "online",
   };
 }
 
@@ -73,6 +80,13 @@ export async function createOrder(order: Order): Promise<Order> {
     pickup_time: order.pickup_time,
     service_type: (order as unknown as Record<string, unknown>).service_type as string || "press",
     status: order.status,
+    payment_id: order.payment_id || "",
+    razorpay_order_id: order.razorpay_order_id || "",
+    amount_paid: order.amount_paid || 0,
+    payment_status: order.payment_status || "Pending",
+    payment_method: order.payment_method || "",
+    payment_date: order.payment_date || null,
+    payment_mode: order.payment_mode || "online",
     created_at: order.created_at,
     updated_at: order.updated_at,
   });
@@ -87,6 +101,49 @@ export async function createOrder(order: Order): Promise<Order> {
     throw new Error(error.message || "Failed to create order");
   }
   return order;
+}
+
+export async function updatePaymentStatus(
+  orderId: string,
+  paymentData: {
+    payment_id: string;
+    razorpay_order_id: string;
+    amount_paid: number;
+    payment_status: PaymentStatus;
+    payment_method: string;
+    payment_date: string;
+  }
+): Promise<Order | null> {
+  const updatedAt = new Date().toISOString();
+  const { error } = await supabase
+    .from("orders")
+    .update({
+      payment_id: paymentData.payment_id,
+      razorpay_order_id: paymentData.razorpay_order_id,
+      amount_paid: paymentData.amount_paid,
+      payment_status: paymentData.payment_status,
+      payment_method: paymentData.payment_method,
+      payment_date: paymentData.payment_date,
+      updated_at: updatedAt,
+    })
+    .eq("order_id", orderId);
+
+  if (isTableNotFound(error)) {
+    const idx = memOrders.findIndex((o) => o.order_id === orderId);
+    if (idx === -1) return null;
+    memOrders[idx] = {
+      ...memOrders[idx],
+      ...paymentData,
+      updated_at: updatedAt,
+    };
+    return memOrders[idx];
+  }
+
+  if (error) {
+    console.error("Failed to update payment status:", error);
+    return null;
+  }
+  return getOrderByOrderId(orderId);
 }
 
 export async function updateOrderStatus(

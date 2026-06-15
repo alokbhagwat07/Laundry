@@ -26,6 +26,13 @@ CREATE TABLE IF NOT EXISTS orders (
   pickup_time TEXT NOT NULL,
   service_type TEXT DEFAULT 'press',
   status TEXT DEFAULT 'Order Received',
+  payment_id TEXT DEFAULT '',
+  razorpay_order_id TEXT DEFAULT '',
+  amount_paid REAL DEFAULT 0,
+  payment_status TEXT DEFAULT 'Pending',
+  payment_method TEXT DEFAULT '',
+  payment_date TIMESTAMPTZ,
+  payment_mode TEXT DEFAULT 'online',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -93,3 +100,12 @@ CREATE POLICY "Allow all on reviews" ON reviews FOR ALL USING (true) WITH CHECK 
 CREATE POLICY "Allow all on services" ON services FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on pricing" ON pricing FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on contacts" ON contacts FOR ALL USING (true) WITH CHECK (true);
+
+-- Payment migration (run for existing deployments)
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_id TEXT DEFAULT '';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS razorpay_order_id TEXT DEFAULT '';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS amount_paid REAL DEFAULT 0;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'Pending';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT '';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_date TIMESTAMPTZ;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_mode TEXT DEFAULT 'online';

@@ -22,7 +22,7 @@ import {
   BellRing,
   Sparkles,
 } from "lucide-react";
-import type { Order, OrderStatus } from "@/lib/types";
+import type { Order, OrderStatus, PaymentStatus } from "@/lib/types";
 import { useLanguage } from "@/lib/LanguageContext";
 import { motion } from "framer-motion";
 
@@ -121,6 +121,7 @@ function AdminDashboard({ password }: { password: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState<"all" | PaymentStatus>("all");
   const [activeTab, setActiveTab] = useState<"orders" | "customers" | "reviews" | "contacts" | "chat">("orders");
   const [setupStatus, setSetupStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [setupMessage, setSetupMessage] = useState("");
@@ -253,10 +254,15 @@ function AdminDashboard({ password }: { password: string }) {
     }
   };
 
+  const totalRevenue = orders
+    .filter((o) => o.payment_status === "Paid")
+    .reduce((sum, o) => sum + (o.amount_paid || o.total_amount), 0);
+
   const filteredOrders = orders.filter(
     (o) =>
-      o.order_id.toLowerCase().includes(search.toLowerCase()) ||
-      o.customer_name.toLowerCase().includes(search.toLowerCase())
+      (o.order_id.toLowerCase().includes(search.toLowerCase()) ||
+      o.customer_name.toLowerCase().includes(search.toLowerCase())) &&
+      (paymentFilter === "all" || o.payment_status === paymentFilter)
   );
 
   const pendingOrders = orders.filter((o) => o.status !== "Delivered").length;
@@ -267,6 +273,7 @@ function AdminDashboard({ password }: { password: string }) {
     { label: t("admin.stat.pendingOrders"), value: pendingOrders.toString(), icon: <Clock className="w-5 h-5" />, color: "from-amber-500 to-orange-500" },
     { label: t("admin.stat.completedOrders"), value: completedOrders.toString(), icon: <CheckCircle2 className="w-5 h-5" />, color: "from-green-500 to-emerald-500" },
     { label: t("admin.stat.customers"), value: customers.length.toString(), icon: <Users className="w-5 h-5" />, color: "from-purple-500 to-violet-500" },
+    { label: t("admin.stat.revenue"), value: `₹${totalRevenue}`, icon: <TrendingUp className="w-5 h-5" />, color: "from-emerald-500 to-teal-500" },
   ];
 
   if (loading) {
@@ -353,7 +360,7 @@ function AdminDashboard({ password }: { password: string }) {
 
       <section className="py-8 md:py-12 bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {stats.map((stat) => (
               <motion.div
                 key={stat.label}
@@ -449,8 +456,8 @@ function AdminDashboard({ password }: { password: string }) {
 
           {activeTab === "orders" && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-              <div className="p-4 border-b border-gray-100">
-                <div className="relative max-w-sm">
+              <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="text"
@@ -460,6 +467,17 @@ function AdminDashboard({ password }: { password: string }) {
                     className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                   />
                 </div>
+                <select
+                  value={paymentFilter}
+                  onChange={(e) => setPaymentFilter(e.target.value as "all" | PaymentStatus)}
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">{t("admin.filterAll")}</option>
+                  <option value="Pending">{t("admin.filterPending")}</option>
+                  <option value="Paid">{t("admin.filterPaid")}</option>
+                  <option value="Failed">{t("admin.filterFailed")}</option>
+                  <option value="Refunded">{t("admin.filterRefunded")}</option>
+                </select>
               </div>
 
               {orders.length === 0 ? (
@@ -477,6 +495,7 @@ function AdminDashboard({ password }: { password: string }) {
                         <th className="text-left px-4 py-3 font-medium">Customer</th>
                         <th className="text-left px-4 py-3 font-medium">Items</th>
                         <th className="text-left px-4 py-3 font-medium">Amount</th>
+                        <th className="text-left px-4 py-3 font-medium">Payment</th>
                         <th className="text-left px-4 py-3 font-medium">Date</th>
                         <th className="text-left px-4 py-3 font-medium">Status</th>
                         <th className="text-left px-4 py-3 font-medium">Action</th>
@@ -497,6 +516,26 @@ function AdminDashboard({ password }: { password: string }) {
                           </td>
                           <td className="px-4 py-3 font-semibold text-gray-800">
                             ₹{order.total_amount}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-col gap-1">
+                              <span
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium w-fit ${
+                                  order.payment_status === "Paid"
+                                    ? "bg-green-50 text-green-700"
+                                    : order.payment_status === "Failed"
+                                    ? "bg-red-50 text-red-700"
+                                    : order.payment_status === "Refunded"
+                                    ? "bg-purple-50 text-purple-700"
+                                    : "bg-amber-50 text-amber-700"
+                                }`}
+                              >
+                                {order.payment_status || "Pending"}
+                              </span>
+                              {order.payment_method && (
+                                <span className="text-[10px] text-gray-400">{order.payment_method}</span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-4 py-3 text-gray-500">{order.pickup_date}</td>
                           <td className="px-4 py-3">

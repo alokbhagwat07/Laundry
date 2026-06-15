@@ -134,6 +134,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const now = new Date().toISOString();
     const order: Order = {
       id: body.order_id,
       order_id: body.order_id,
@@ -146,8 +147,15 @@ export async function POST(request: Request) {
       pickup_date: body.pickup_date,
       pickup_time: body.pickup_time,
       status: "Order Received",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: now,
+      updated_at: now,
+      payment_id: body.payment_id || undefined,
+      razorpay_order_id: body.razorpay_order_id || undefined,
+      amount_paid: body.amount_paid || undefined,
+      payment_status: body.payment_status || "Pending",
+      payment_method: body.payment_method || undefined,
+      payment_date: body.payment_date || undefined,
+      payment_mode: body.payment_mode || "online",
     };
     (order as unknown as Record<string, unknown>).service_type = body.service_type || "press";
 
@@ -161,6 +169,15 @@ export async function POST(request: Request) {
 
     sendWhatsAppNotifications(order);
     sendEmailNotification(order);
+
+    const paymentLine = order.payment_mode === "cod"
+      ? `Payment: Cash on Delivery`
+      : order.payment_mode === "pay_later"
+      ? `Payment: Pay Later`
+      : order.payment_status === "Paid"
+      ? `Payment: Paid (${order.payment_method || "Online"})\nPayment ID: ${order.payment_id || "N/A"}`
+      : `Payment: Pending (Online)`;
+
     sendTelegramMessage(
       `🚨 NEW LAUNDRY ORDER\n\n` +
       `Order ID: ${order.order_id}\n\n` +
@@ -169,7 +186,8 @@ export async function POST(request: Request) {
       `Address: ${order.customer_address}\n\n` +
       `Pickup Date: ${order.pickup_date}\n` +
       `Pickup Time: ${order.pickup_time}\n\n` +
-      `Total Amount: ₹${order.total_amount}\n\n` +
+      `Total Amount: ₹${order.total_amount}\n` +
+      `${paymentLine}\n\n` +
       `Order Time: ${order.created_at}`
     );
 
