@@ -167,29 +167,24 @@ export async function POST(request: Request) {
       address: body.customer_address,
     });
 
-    sendWhatsAppNotifications(order);
-    sendEmailNotification(order);
+    const serviceType = body.service_type || "press";
+    const serviceLabel = serviceType === "washPress" ? "Wash & Press" : "Press";
 
-    const paymentLine = order.payment_mode === "cod"
-      ? `Payment: Cash on Delivery`
-      : order.payment_mode === "pay_later"
-      ? `Payment: Pay Later`
-      : order.payment_status === "Paid"
-      ? `Payment: Paid (${order.payment_method || "Online"})\nPayment ID: ${order.payment_id || "N/A"}`
-      : `Payment: Pending (Online)`;
-
-    sendTelegramMessage(
-      `🚨 NEW LAUNDRY ORDER\n\n` +
-      `Order ID: ${order.order_id}\n\n` +
+    const telegramText =
+      `🧺 NEW LAUNDRY ORDER\n\n` +
+      `Order ID: ${order.order_id}\n` +
       `Customer: ${order.customer_name}\n` +
       `Mobile: ${order.customer_mobile}\n` +
-      `Address: ${order.customer_address}\n\n` +
+      `Address: ${order.customer_address}\n` +
+      `Service: ${serviceLabel}\n` +
       `Pickup Date: ${order.pickup_date}\n` +
-      `Pickup Time: ${order.pickup_time}\n\n` +
-      `Total Amount: ₹${order.total_amount}\n` +
-      `${paymentLine}\n\n` +
-      `Order Time: ${order.created_at}`
-    );
+      `Pickup Time: ${order.pickup_time}\n` +
+      `Total Amount: ₹${order.total_amount}`;
+
+    await sendTelegramMessage(telegramText);
+
+    sendWhatsAppNotifications(order);
+    sendEmailNotification(order);
 
     return NextResponse.json(created, { status: 201 });
   } catch (err) {

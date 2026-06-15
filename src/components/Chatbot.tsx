@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { getChatResponse } from "@/lib/chat-utils";
+import { Sparkles, Send, X } from "lucide-react";
 
 interface Message {
   role: "user" | "bot";
@@ -51,203 +52,74 @@ export default function Chatbot({ onClose }: { onClose?: () => void }) {
   };
 
   return (
-    <div
-      style={{
-        background: "white",
-        borderRadius: "16px",
-        border: "1px solid #e5e7eb",
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
-        maxHeight: "520px",
-      }}
-    >
-      <div
-        style={{
-          background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-          padding: "12px 16px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div
-            style={{
-              width: "32px",
-              height: "32px",
-              background: "rgba(255,255,255,0.2)",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "16px",
-            }}
-          >
-            🤖
+    <div className="glass-card-static rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-black/30" style={{ maxHeight: "520px" }}>
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-500 px-4 py-3 flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
-            <div style={{ color: "white", fontWeight: 600, fontSize: "14px", lineHeight: 1.3 }}>
-              Mauli Laundry AI
-            </div>
-            <div style={{ color: "#bfdbfe", fontSize: "11px" }}>Online</div>
+            <div className="text-white font-semibold text-sm leading-tight">Mauli Laundry AI</div>
+            <div className="text-blue-200 text-[11px]">Online</div>
           </div>
         </div>
         {onClose && (
-          <button
-            onClick={onClose}
-            style={{
-              background: "none",
-              border: "none",
-              color: "white",
-              cursor: "pointer",
-              padding: "4px 8px",
-              borderRadius: "8px",
-              fontSize: "18px",
-              lineHeight: 1,
-            }}
-          >
-            ✕
+          <button onClick={onClose} className="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors">
+            <X className="w-5 h-5" />
           </button>
         )}
       </div>
 
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "12px",
-          background: "#f9fafb",
-          minHeight: "280px",
-          maxHeight: "340px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-        }}
-      >
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              gap: "8px",
-              flexDirection: msg.role === "user" ? "row-reverse" : "row",
-            }}
-          >
-            <div
-              style={{
-                width: "28px",
-                height: "28px",
-                borderRadius: "10px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                fontSize: "14px",
-                background: msg.role === "user" ? "#dbeafe" : "#2563eb",
-                color: msg.role === "user" ? "#1d4ed8" : "white",
-              }}
-            >
-              {msg.role === "user" ? "👤" : "🤖"}
+      <div className="flex-1 overflow-y-auto p-3 bg-dark-900/50" style={{ minHeight: "280px", maxHeight: "340px" }}>
+        <div className="flex flex-col gap-2.5">
+          {messages.map((msg, i) => (
+            <div key={i} className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-xs ${
+                msg.role === "user" ? "bg-blue-500/20 text-blue-300" : "bg-blue-600 text-white"
+              }`}>
+                {msg.role === "user" ? "👤" : "🤖"}
+              </div>
+              <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                msg.role === "user"
+                  ? "bg-blue-600 text-white rounded-tr-sm"
+                  : "bg-dark-700 text-dark-100 border border-white/[0.06] rounded-tl-sm"
+              }`}>
+                <RenderText content={msg.content} white={msg.role === "user"} />
+              </div>
             </div>
-            <div
-              style={{
-                maxWidth: "85%",
-                borderRadius: "14px",
-                padding: "8px 14px",
-                fontSize: "14px",
-                lineHeight: 1.5,
-                background: msg.role === "user" ? "#2563eb" : "white",
-                color: msg.role === "user" ? "white" : "#1f2937",
-                border: msg.role === "user" ? "none" : "1px solid #e5e7eb",
-                borderTopLeftRadius: msg.role === "bot" ? "4px" : "14px",
-                borderTopRightRadius: msg.role === "user" ? "4px" : "14px",
-              }}
-            >
-              <RenderText content={msg.content} white={msg.role === "user"} />
-            </div>
-          </div>
-        ))}
+          ))}
 
-        {waiting && (
-          <div style={{ display: "flex", gap: "8px" }}>
-            <div
-              style={{
-                width: "28px",
-                height: "28px",
-                borderRadius: "10px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "#2563eb",
-                color: "white",
-                fontSize: "14px",
-              }}
-            >
-              🤖
+          {waiting && (
+            <div className="flex gap-2">
+              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs">🤖</div>
+              <div className="bg-dark-700 border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-dark-400 rounded-full animate-bounce" />
+                  <span className="w-1.5 h-1.5 bg-dark-400 rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
+                  <span className="w-1.5 h-1.5 bg-dark-400 rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
+                </div>
+              </div>
             </div>
-            <div
-              style={{
-                background: "white",
-                border: "1px solid #e5e7eb",
-                borderRadius: "14px",
-                borderTopLeftRadius: "4px",
-                padding: "10px 14px",
-              }}
-            >
-              <span style={{ color: "#9ca3af", fontSize: "14px" }}>typing...</span>
-            </div>
-          </div>
-        )}
-        <div ref={bottomRef} />
+          )}
+          <div ref={bottomRef} />
+        </div>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          padding: "12px",
-          borderTop: "1px solid #e5e7eb",
-          background: "white",
-          display: "flex",
-          gap: "8px",
-          flexShrink: 0,
-        }}
-      >
+      <form onSubmit={handleSubmit} className="p-3 border-t border-white/[0.06] bg-dark-800 flex gap-2 flex-shrink-0">
         <input
           ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
-          style={{
-            flex: 1,
-            padding: "10px 14px",
-            borderRadius: "10px",
-            border: "1px solid #e5e7eb",
-            fontSize: "14px",
-            outline: "none",
-            background: "#f9fafb",
-          }}
-          onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-          onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+          className="flex-1 px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder:text-dark-500"
         />
         <button
           type="submit"
           disabled={!input.trim() || waiting}
-          style={{
-            padding: "10px 18px",
-            borderRadius: "10px",
-            border: "none",
-            background: !input.trim() || waiting ? "#93c5fd" : "#2563eb",
-            color: "white",
-            fontWeight: 600,
-            fontSize: "14px",
-            cursor: !input.trim() || waiting ? "not-allowed" : "pointer",
-            transition: "background 0.2s",
-          }}
+          className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl font-medium text-sm hover:from-blue-700 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-1.5"
         >
+          <Send className="w-3.5 h-3.5" />
           Send
         </button>
       </form>
@@ -267,7 +139,7 @@ function RenderText({ content, white }: { content: string; white: boolean }) {
             {parts.map((part, pi) => {
               if (part.startsWith("**") && part.endsWith("**")) {
                 return (
-                  <strong key={pi} style={{ color: white ? "white" : "#111827" }}>
+                  <strong key={pi} style={{ color: white ? "white" : "#f1f5f9" }}>
                     {part.slice(2, -2)}
                   </strong>
                 );

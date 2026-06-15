@@ -46,26 +46,26 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="glass rounded-2xl shadow-xl p-8 text-center"
+        className="glass-card rounded-2xl shadow-xl p-8 text-center"
       >
-        <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-8 h-8 text-green-600" />
+        <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <CheckCircle2 className="w-8 h-8 text-green-400" />
         </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Thank You!</h3>
-        <p className="text-gray-500">Your review helps us serve you better.</p>
+        <h3 className="text-xl font-bold text-white mb-2">Thank You!</h3>
+        <p className="text-dark-400">Your review helps us serve you better.</p>
       </motion.div>
     );
   }
 
   return (
-    <div className="glass rounded-2xl shadow-xl p-6 md:p-8">
+    <div className="glass-card rounded-2xl shadow-xl p-6 md:p-8">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center">
-          <MessageSquare className="w-5 h-5 text-blue-600" />
+        <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl flex items-center justify-center">
+          <MessageSquare className="w-5 h-5 text-blue-400" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-gray-900">Leave a Review</h3>
-          <p className="text-sm text-gray-400">Share your experience with us</p>
+          <h3 className="text-lg font-bold text-white">Leave a Review</h3>
+          <p className="text-sm text-dark-400">Share your experience with us</p>
         </div>
       </div>
 
@@ -76,11 +76,11 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+          className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-dark-500 text-white"
         />
 
         <div>
-          <p className="text-xs text-gray-400 mb-2 font-medium">Your Rating</p>
+          <p className="text-xs text-dark-400 mb-2 font-medium">Your Rating</p>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -95,7 +95,7 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
                   className={`w-7 h-7 ${
                     star <= (hover || rating)
                       ? "text-yellow-400 fill-yellow-400 drop-shadow-sm"
-                      : "text-gray-300"
+                      : "text-dark-600"
                   }`}
                 />
               </button>
@@ -109,7 +109,7 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
           onChange={(e) => setComment(e.target.value)}
           required
           rows={3}
-          className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none placeholder:text-gray-400"
+          className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none placeholder:text-dark-500 text-white"
         />
 
         <AnimatePresence>
@@ -118,7 +118,7 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2 border border-red-100"
+              className="text-sm text-red-400 bg-red-500/10 rounded-xl px-4 py-2 border border-red-500/20"
             >
               {error}
             </motion.p>
@@ -128,7 +128,7 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
         <button
           type="submit"
           disabled={!name.trim() || rating === 0 || !comment.trim() || sending}
-          className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-200/50 hover:shadow-blue-300/50 active:scale-[0.98]"
+          className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-400/30 active:scale-[0.98]"
         >
           {sending ? (
             <span className="flex items-center gap-2">

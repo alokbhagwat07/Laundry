@@ -3,18 +3,17 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import FloatingChat from "@/components/FloatingChat";
 import { LanguageProvider } from "@/lib/LanguageContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Mauli Laundry — Fast, Reliable & Affordable Laundry Service",
+  title: "Mauli Laundry — Premium AI-Powered Laundry Service",
   description:
-    "Professional laundry service with free doorstep pickup and delivery. Wash & Fold, Dry Cleaning, Express delivery. AI-powered customer support 24/7.",
+    "Experience premium laundry care powered by AI. Free doorstep pickup & delivery, professional cleaning, and 24/7 intelligent support.",
   keywords:
-    "laundry service, dry cleaning, wash and fold, laundry pickup, Mauli Laundry",
+    "laundry service, dry cleaning, wash and fold, laundry pickup, Mauli Laundry, premium laundry",
 };
 
 export default function RootLayout({
@@ -24,12 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full scroll-smooth">
-      <body className={`${inter.className} min-h-full flex flex-col antialiased`}>
+      <body className={`${inter.className} min-h-full flex flex-col antialiased mesh-gradient`}>
         <LanguageProvider>
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
-          <FloatingWhatsApp />
           <FloatingChat />
         </LanguageProvider>
       </body>

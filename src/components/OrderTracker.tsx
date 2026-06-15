@@ -62,19 +62,19 @@ export default function OrderTracker() {
     <div className="max-w-lg mx-auto">
       <div className="flex gap-3 mb-8">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
           <input
             type="text"
             value={orderId}
             onChange={(e) => setOrderId(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleTrack()}
             placeholder={t("tracking.enterId")}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder:text-dark-500"
           />
         </div>
         <button
           onClick={handleTrack}
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl hover:from-blue-700 hover:to-indigo-600 transition-all duration-200 flex items-center gap-2 shadow-lg shadow-blue-200/50"
+          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl hover:from-blue-700 hover:to-indigo-600 transition-all duration-200 flex items-center gap-2 shadow-lg shadow-blue-500/20"
         >
           <Search className="w-4 h-4" />
           {t("tracking.track")}
@@ -88,10 +88,10 @@ export default function OrderTracker() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="glass rounded-2xl shadow-xl p-8 text-center"
+            className="glass-card rounded-2xl shadow-xl p-8 text-center"
           >
-            <Loader2 className="w-10 h-10 text-blue-600 mx-auto mb-3 animate-spin" />
-            <p className="text-gray-600">{t("tracking.searching")}</p>
+            <Loader2 className="w-10 h-10 text-blue-400 mx-auto mb-3 animate-spin" />
+            <p className="text-dark-300">{t("tracking.searching")}</p>
           </motion.div>
         )}
 
@@ -102,11 +102,11 @@ export default function OrderTracker() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="glass rounded-2xl shadow-xl p-8 text-center"
+            className="glass-card rounded-2xl shadow-xl p-8 text-center"
           >
-            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-600 font-medium">{error || t("tracking.notFound")}</p>
-            <p className="text-sm text-gray-400 mt-1 mb-4">
+            <Package className="w-12 h-12 text-dark-500 mx-auto mb-3" />
+            <p className="text-dark-300 font-medium">{error || t("tracking.notFound")}</p>
+            <p className="text-sm text-dark-400 mt-1 mb-4">
               {t("tracking.noOrderYet")}
             </p>
             <Link
@@ -125,36 +125,36 @@ export default function OrderTracker() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden"
+            className="glass-card rounded-2xl overflow-hidden"
           >
-            <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-6 py-5">
-              <p className="text-blue-100/80 text-sm">{t("tracking.orderId")}</p>
+            <div className="bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 px-6 py-5 border-b border-white/[0.06]">
+              <p className="text-dark-300 text-sm">{t("tracking.orderId")}</p>
               <p className="text-white text-xl font-bold tracking-wider">{order.order_id}</p>
             </div>
 
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-400 mb-0.5">{t("tracking.customer")}</p>
-                  <p className="font-medium text-gray-800 text-sm">{order.customer_name}</p>
+                <div className="bg-white/[0.03] rounded-xl p-3">
+                  <p className="text-xs text-dark-400 mb-0.5">{t("tracking.customer")}</p>
+                  <p className="font-medium text-white text-sm">{order.customer_name}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-400 mb-0.5">{t("tracking.amount")}</p>
-                  <p className="font-bold text-blue-600 text-sm">₹{order.total_amount}</p>
+                <div className="bg-white/[0.03] rounded-xl p-3">
+                  <p className="text-xs text-dark-400 mb-0.5">{t("tracking.amount")}</p>
+                  <p className="font-bold text-blue-400 text-sm">₹{order.total_amount}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-400 mb-0.5">{t("tracking.pickupDate")}</p>
-                  <p className="font-medium text-gray-800 text-sm">{order.pickup_date}</p>
+                <div className="bg-white/[0.03] rounded-xl p-3">
+                  <p className="text-xs text-dark-400 mb-0.5">{t("tracking.pickupDate")}</p>
+                  <p className="font-medium text-white text-sm">{order.pickup_date}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-400 mb-0.5">{t("tracking.items")}</p>
-                  <p className="font-medium text-gray-800 text-sm truncate" title={order.items.map((i) => `${i.quantity}x ${i.name}`).join(", ")}>
+                <div className="bg-white/[0.03] rounded-xl p-3">
+                  <p className="text-xs text-dark-400 mb-0.5">{t("tracking.items")}</p>
+                  <p className="font-medium text-white text-sm truncate" title={order.items.map((i) => `${i.quantity}x ${i.name}`).join(", ")}>
                     {order.items.map((i) => `${i.quantity}x ${i.name}`).join(", ")}
                   </p>
                 </div>
               </div>
 
-              <div className="h-px bg-gray-100" />
+              <div className="h-px bg-white/[0.06]" />
 
               <div className="space-y-0">
                 {STEPS.map((step, i) => {
@@ -169,16 +169,16 @@ export default function OrderTracker() {
                           transition={{ duration: 0.3 }}
                           className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
                             isComplete
-                              ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-200/50"
-                              : "bg-gray-100 text-gray-300"
-                          } ${isCurrent ? "ring-4 ring-blue-100" : ""}`}
+                              ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/20"
+                              : "bg-white/[0.04] text-dark-500"
+                          } ${isCurrent ? "ring-4 ring-blue-500/20" : ""}`}
                         >
                           {step.icon}
                         </motion.div>
                         {i < STEPS.length - 1 && (
                           <div
                             className={`w-0.5 h-8 transition-colors duration-300 ${
-                              i < currentIdx ? "bg-blue-600" : "bg-gray-200"
+                              i < currentIdx ? "bg-blue-500" : "bg-white/[0.06]"
                             }`}
                           />
                         )}
@@ -186,7 +186,7 @@ export default function OrderTracker() {
                       <div className="pb-6 pt-1.5">
                         <p
                           className={`text-sm font-medium transition-colors duration-300 ${
-                            isComplete ? "text-gray-900" : "text-gray-400"
+                            isComplete ? "text-white" : "text-dark-500"
                           }`}
                         >
                           {t(STATUS_TRANSLATION_KEY[step.status] || step.status)}
@@ -195,7 +195,7 @@ export default function OrderTracker() {
                           <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-xs text-blue-600 mt-0.5"
+                            className="text-xs text-blue-400 mt-0.5"
                           >
                             {t("tracking.status.inProgress")}
                           </motion.p>

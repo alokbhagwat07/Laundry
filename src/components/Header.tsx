@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, Sparkles } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,18 +20,31 @@ const LINKS = [
 export default function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { t, lang, toggleLang } = useLanguage();
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 glass-strong border-b border-white/30 shadow-lg shadow-blue-900/5">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled
+          ? "bg-dark-800/70 backdrop-blur-2xl border-b border-white/[0.04] shadow-lg shadow-black/10"
+          : "bg-transparent"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-18">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 lg:w-10 lg:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200/50 group-hover:shadow-blue-300/50 group-hover:scale-105 transition-all duration-300">
+            <div className="w-9 h-9 lg:w-10 lg:h-10 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-400/30 group-hover:scale-105 transition-all duration-300">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg lg:text-xl font-bold text-gray-900 tracking-tight">
-              Mauli<span className="text-blue-600">Laundry</span>
+            <span className="text-lg lg:text-xl font-bold text-white tracking-tight">
+              Mauli<span className="text-blue-400">Laundry</span>
             </span>
           </Link>
 
@@ -42,8 +55,8 @@ export default function Header() {
                 href={link.href}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                   pathname === link.href
-                    ? "bg-blue-600/10 text-blue-700 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-white/60"
+                    ? "bg-blue-500/10 text-blue-300 shadow-sm border border-blue-500/10"
+                    : "text-dark-300 hover:text-white hover:bg-white/[0.04]"
                 }`}
               >
                 {t(link.key)}
@@ -52,13 +65,13 @@ export default function Header() {
             <div className="ml-3 flex items-center gap-2">
               <button
                 onClick={toggleLang}
-                className="px-3 py-2 rounded-xl text-xs font-bold border border-gray-200/60 text-gray-500 hover:bg-white/60 hover:border-gray-300 transition-all duration-200 uppercase tracking-wider"
+                className="px-3 py-2 rounded-xl text-xs font-bold border border-white/[0.06] text-dark-400 hover:text-white hover:border-white/[0.12] transition-all duration-200 uppercase tracking-wider"
               >
                 {lang === "en" ? "MR" : "EN"}
               </button>
               <Link
                 href="/booking"
-                className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-600 transition-all duration-200 shadow-lg shadow-blue-200/50 hover:shadow-blue-300/50 hover:-translate-y-0.5 active:translate-y-0"
+                className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-600 transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-400/30 hover:-translate-y-0.5 active:translate-y-0"
               >
                 {t("nav.bookNow")}
               </Link>
@@ -68,13 +81,13 @@ export default function Header() {
           <div className="flex items-center gap-2 md:hidden">
             <button
               onClick={toggleLang}
-              className="px-3 py-2 rounded-xl text-xs font-bold border border-gray-200/60 text-gray-500 hover:bg-white/60 transition-colors uppercase tracking-wider"
+              className="px-3 py-2 rounded-xl text-xs font-bold border border-white/[0.06] text-dark-400 hover:text-white transition-colors uppercase tracking-wider"
             >
               {lang === "en" ? "MR" : "EN"}
             </button>
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="p-2.5 rounded-xl text-gray-600 hover:bg-white/60 transition-colors"
+              className="p-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-white/[0.04] transition-colors"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -92,7 +105,7 @@ export default function Header() {
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className="md:hidden overflow-hidden"
           >
-            <div className="px-4 py-3 space-y-1 border-t border-white/20 bg-white/95 backdrop-blur-2xl">
+            <div className="px-4 py-3 space-y-1 border-t border-white/[0.04] bg-dark-800/90 backdrop-blur-2xl">
               {LINKS.map((item) => (
                 <Link
                   key={item.href}
@@ -100,8 +113,8 @@ export default function Header() {
                   onClick={() => setMobileOpen(false)}
                   className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     pathname === item.href
-                      ? "bg-blue-600/10 text-blue-700"
-                      : "text-gray-600 hover:bg-white/70"
+                      ? "bg-blue-500/10 text-blue-300"
+                      : "text-dark-300 hover:text-white hover:bg-white/[0.04]"
                   }`}
                 >
                   {t(item.key)}
@@ -110,7 +123,7 @@ export default function Header() {
               <Link
                 href="/booking"
                 onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm font-semibold rounded-xl text-center mt-3 shadow-lg shadow-blue-200/50"
+                className="block px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm font-semibold rounded-xl text-center mt-3 shadow-lg shadow-blue-500/20"
               >
                 {t("nav.bookNow")}
               </Link>

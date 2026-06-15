@@ -36,8 +36,8 @@ export default function Testimonials() {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-          <span className="text-sm text-gray-400">Loading reviews...</span>
+          <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+          <span className="text-sm text-dark-400">Loading reviews...</span>
         </div>
       </div>
     );
@@ -45,11 +45,11 @@ export default function Testimonials() {
 
   if (reviews.length === 0) {
     return (
-      <div className="glass rounded-2xl shadow-xl p-12 text-center">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <div className="glass-card rounded-2xl shadow-xl p-12 text-center">
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Quote className="w-7 h-7 text-blue-400" />
         </div>
-        <p className="text-gray-400">No reviews yet. Be the first to share your experience!</p>
+        <p className="text-dark-400">No reviews yet. Be the first to share your experience!</p>
       </div>
     );
   }
@@ -57,7 +57,7 @@ export default function Testimonials() {
   const t = reviews[current];
 
   return (
-    <div className="glass rounded-2xl shadow-xl p-8 md:p-10 card-hover">
+    <div className="glass-card rounded-2xl shadow-xl p-8 md:p-10">
       <AnimatePresence mode="wait">
         <motion.div
           key={current}
@@ -67,14 +67,12 @@ export default function Testimonials() {
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           className="flex flex-col items-center text-center"
         >
-          {/* Avatar */}
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center mb-5 shadow-lg shadow-blue-200/50 ring-4 ring-white">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center mb-5 shadow-lg shadow-blue-500/20 ring-4 ring-dark-800">
             <span className="text-white font-bold text-xl">
               {t.customer_name.charAt(0).toUpperCase()}
             </span>
           </div>
 
-          {/* Stars */}
           <div className="flex gap-1 mb-4">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
@@ -82,20 +80,18 @@ export default function Testimonials() {
                 className={`w-5 h-5 ${
                   i < t.rating
                     ? "text-yellow-400 fill-yellow-400 drop-shadow-sm"
-                    : "text-gray-200"
+                    : "text-dark-600"
                 }`}
               />
             ))}
           </div>
 
-          {/* Quote */}
-          <p className="text-gray-600 leading-relaxed text-base mb-5 italic max-w-md">
+          <p className="text-dark-300 leading-relaxed text-base mb-5 italic max-w-md">
             &ldquo;{t.comment}&rdquo;
           </p>
 
-          {/* Author */}
-          <p className="font-semibold text-gray-900">{t.customer_name}</p>
-          <p className="text-sm text-gray-400">Happy Customer</p>
+          <p className="font-semibold text-white">{t.customer_name}</p>
+          <p className="text-sm text-dark-400">Happy Customer</p>
         </motion.div>
       </AnimatePresence>
 
@@ -103,10 +99,10 @@ export default function Testimonials() {
         <div className="flex items-center justify-center gap-4 mt-8">
           <button
             onClick={prev}
-            className="p-2.5 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100 hover:border-gray-200"
+            className="p-2.5 rounded-xl hover:bg-white/[0.04] transition-all duration-200 border border-white/[0.06] hover:border-white/[0.12]"
             aria-label="Previous review"
           >
-            <ChevronLeft className="w-4 h-4 text-gray-500" />
+            <ChevronLeft className="w-4 h-4 text-dark-400" />
           </button>
           <div className="flex gap-1.5">
             {reviews.map((_, i) => (
@@ -114,7 +110,7 @@ export default function Testimonials() {
                 key={i}
                 onClick={() => setCurrent(i)}
                 className={`h-2 rounded-full transition-all duration-300 ${
-                  i === current ? "w-6 bg-gradient-to-r from-blue-600 to-indigo-500" : "w-2 bg-gray-300 hover:bg-gray-400"
+                  i === current ? "w-6 bg-gradient-to-r from-blue-500 to-indigo-400" : "w-2 bg-dark-600 hover:bg-dark-500"
                 }`}
                 aria-label={`Go to review ${i + 1}`}
               />
@@ -122,10 +118,10 @@ export default function Testimonials() {
           </div>
           <button
             onClick={next}
-            className="p-2.5 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100 hover:border-gray-200"
+            className="p-2.5 rounded-xl hover:bg-white/[0.04] transition-all duration-200 border border-white/[0.06] hover:border-white/[0.12]"
             aria-label="Next review"
           >
-            <ChevronRight className="w-4 h-4 text-gray-500" />
+            <ChevronRight className="w-4 h-4 text-dark-400" />
           </button>
         </div>
       )}
