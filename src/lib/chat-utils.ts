@@ -17,9 +17,9 @@ const FAQ: Record<string, string> = {
   "pickup timing":
     "Our pickup service runs from **8 AM to 8 PM**. You can schedule a specific time slot that works for you.",
   "payment method":
-    "We accept **Cash**, **UPI (Google Pay, PhonePe, Paytm)**, and **Bank Transfer**. Payment is collected on delivery.",
+    "We accept **Cash** and **UPI (Google Pay, PhonePe, Paytm)**. Payment is collected on delivery.",
   payment:
-    "We accept **Cash**, **UPI (Google Pay, PhonePe, Paytm)**, and **Bank Transfer**. Payment is collected on delivery.",
+    "We accept **Cash** and **UPI (Google Pay, PhonePe, Paytm)**. Payment is collected on delivery.",
   pickup:
     "Yes, we provide **free doorstep pickup and delivery**. Schedule a pickup and we'll be at your door.",
   "dry cleaning":

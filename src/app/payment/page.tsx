@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Loader2, CreditCard, IndianRupee, Smartphone, Banknote, Landmark, Scan } from "lucide-react";
+import { CheckCircle2, Loader2, CreditCard, IndianRupee, Smartphone, Scan, Banknote } from "lucide-react";
 
 declare global {
   interface Window {
@@ -96,7 +96,7 @@ export default function PaymentPage() {
               Make a Payment
             </h1>
             <p className="text-dark-300 text-lg md:text-xl max-w-2xl mx-auto">
-              Pay any amount via UPI, Cards, Net Banking, GPay, PhonePe, or Paytm
+              Pay via GPay, PhonePe, or Paytm
             </p>
           </motion.div>
         </div>
@@ -112,7 +112,7 @@ export default function PaymentPage() {
             className="glass-card rounded-2xl p-6 md:p-8"
           >
             <h2 className="text-lg font-bold text-white mb-1">Pay Online via Razorpay</h2>
-            <p className="text-sm text-dark-400 mb-5">Enter any amount and pay using UPI, Cards, or Net Banking</p>
+            <p className="text-sm text-dark-400 mb-5">Enter any amount and pay using GPay, PhonePe, or Paytm</p>
 
             <div className="relative mb-5">
               <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
@@ -151,9 +151,6 @@ export default function PaymentPage() {
             </button>
 
             <div className="flex items-center justify-center gap-4 mt-4 text-xs text-dark-400">
-              <span className="flex items-center gap-1"><Smartphone className="w-3.5 h-3.5" /> UPI</span>
-              <span className="flex items-center gap-1"><Banknote className="w-3.5 h-3.5" /> Cards</span>
-              <span className="flex items-center gap-1"><Landmark className="w-3.5 h-3.5" /> Net Banking</span>
               <span className="flex items-center gap-1"><Smartphone className="w-3.5 h-3.5" /> GPay / PhonePe / Paytm</span>
             </div>
           </motion.div>
@@ -221,25 +218,11 @@ export default function PaymentPage() {
               <Banknote className="w-4 h-4 text-blue-400" />
               Other Ways to Pay
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="bg-blue-500/10 rounded-xl p-4 border border-blue-500/20">
-                <Smartphone className="w-5 h-5 text-blue-400 mb-2" />
-                <p className="text-xs text-dark-400 mb-1">UPI ID</p>
-                <p className="font-mono font-semibold text-blue-300 text-base">mauli@upi</p>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
               <div className="bg-green-500/10 rounded-xl p-4 border border-green-500/20">
                 <Smartphone className="w-5 h-5 text-green-400 mb-2" />
                 <p className="text-xs text-dark-400 mb-1">GPay / PhonePe / Paytm</p>
                 <p className="font-semibold text-green-300">+91 95455 28747</p>
-              </div>
-              <div className="bg-purple-500/10 rounded-xl p-4 border border-purple-500/20">
-                <Landmark className="w-5 h-5 text-purple-400 mb-2" />
-                <p className="text-xs text-dark-400 mb-1">Bank Transfer</p>
-                <p className="font-semibold text-purple-300 text-xs leading-relaxed">
-                  Mauli Laundry<br />
-                  SBI Bank · A/C: 1234567890<br />
-                  IFSC: SBIN0001234
-                </p>
               </div>
             </div>
           </motion.div>

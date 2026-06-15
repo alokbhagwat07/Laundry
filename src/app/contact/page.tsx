@@ -161,7 +161,7 @@ export default function ContactPage() {
                         </p>
                       ) : method.address ? (
                         <p className="text-sm text-dark-400">
-                          Alandi, Pune, Maharashtra
+                          Annapurna Mata Nagar, Wadgoan Road, Alandi Dewachi
                         </p>
                       ) : null}
                     </div>

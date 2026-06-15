@@ -92,7 +92,7 @@ export default function Footer() {
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors">
                   <MapPin className="w-4 h-4 text-blue-400" />
                 </div>
-                <span className="text-sm text-dark-300">Alandi, Pune, Maharashtra</span>
+                <span className="text-sm text-dark-300">Annapurna Mata Nagar, Wadgoan Road, Alandi Dewachi</span>
               </li>
             </ul>
             <div className="mt-6 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
