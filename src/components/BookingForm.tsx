@@ -97,8 +97,12 @@ export default function BookingForm() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="glass-card rounded-2xl shadow-xl p-8 md:p-10 text-center max-w-lg mx-auto"
+        className="premium-card rounded-2xl p-8 md:p-10 text-center max-w-lg mx-auto relative overflow-hidden"
       >
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-blue-500/15 rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-purple-500/15 rounded-full blur-3xl" />
+        </div>
         <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-8 h-8 text-green-400" />
         </div>
@@ -153,8 +157,12 @@ export default function BookingForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
-      <div className="glass-card rounded-2xl p-6 md:p-8 space-y-5">
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6 relative">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl" />
+      </div>
+      <div className="premium-card rounded-2xl p-6 md:p-8 space-y-5">
         <h3 className="text-lg font-bold text-white flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-lg flex items-center justify-center">
             <User className="w-4 h-4 text-blue-400" />
@@ -200,7 +208,7 @@ export default function BookingForm() {
         </div>
       </div>
 
-      <div className="glass-card rounded-2xl p-6 md:p-8 space-y-5">
+      <div className="premium-card rounded-2xl p-6 md:p-8 space-y-5">
         <h3 className="text-lg font-bold text-white flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-lg flex items-center justify-center">
             <Calendar className="w-4 h-4 text-blue-400" />
@@ -239,7 +247,7 @@ export default function BookingForm() {
         </div>
       </div>
 
-      <div className="glass-card rounded-2xl p-6 md:p-8 space-y-4">
+      <div className="premium-card rounded-2xl p-6 md:p-8 space-y-4">
         <h3 className="text-lg font-bold text-white flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-lg flex items-center justify-center">
             <Package className="w-4 h-4 text-blue-400" />

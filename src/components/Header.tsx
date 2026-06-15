@@ -31,19 +31,19 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
         scrolled
-          ? "bg-dark-800/70 backdrop-blur-2xl border-b border-white/[0.04] shadow-lg shadow-black/10"
-          : "bg-transparent"
+          ? "bg-dark-800/60 backdrop-blur-2xl border-b border-white/[0.04] shadow-lg shadow-black/20"
+          : "bg-gradient-to-b from-dark-900/80 to-transparent"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-18">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 lg:w-10 lg:h-10 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-400/30 group-hover:scale-105 transition-all duration-300">
+        <div className="flex items-center justify-between h-16 lg:h-20">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 lg:w-11 lg:h-11 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-400/30 group-hover:scale-110 transition-all duration-500">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg lg:text-xl font-bold text-white tracking-tight">
+            <span className="text-lg lg:text-xl font-bold text-white tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Mauli<span className="text-blue-400">Laundry</span>
             </span>
           </Link>
@@ -53,7 +53,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
                   pathname === link.href
                     ? "bg-blue-500/10 text-blue-300 shadow-sm border border-blue-500/10"
                     : "text-dark-300 hover:text-white hover:bg-white/[0.04]"
@@ -62,23 +62,23 @@ export default function Header() {
                 {t(link.key)}
               </Link>
             ))}
-            <div className="ml-3 flex items-center gap-2">
+            <div className="ml-4 flex items-center gap-3">
               <button
                 onClick={toggleLang}
-                className="px-3 py-2 rounded-xl text-xs font-bold border border-white/[0.06] text-dark-400 hover:text-white hover:border-white/[0.12] transition-all duration-200 uppercase tracking-wider"
+                className="px-3 py-2 rounded-xl text-xs font-bold border border-white/[0.06] text-dark-400 hover:text-white hover:border-white/[0.12] hover:bg-white/[0.04] transition-all duration-300 uppercase tracking-wider"
               >
                 {lang === "en" ? "MR" : "EN"}
               </button>
               <Link
                 href="/booking"
-                className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-600 transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-400/30 hover:-translate-y-0.5 active:translate-y-0"
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-600 transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-400/30 hover:-translate-y-0.5 active:translate-y-0"
               >
                 {t("nav.bookNow")}
               </Link>
             </div>
           </nav>
 
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-3 md:hidden">
             <button
               onClick={toggleLang}
               className="px-3 py-2 rounded-xl text-xs font-bold border border-white/[0.06] text-dark-400 hover:text-white transition-colors uppercase tracking-wider"
@@ -102,10 +102,10 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="md:hidden overflow-hidden"
           >
-            <div className="px-4 py-3 space-y-1 border-t border-white/[0.04] bg-dark-800/90 backdrop-blur-2xl">
+            <div className="px-4 py-4 space-y-1.5 border-t border-white/[0.04] bg-dark-800/80 backdrop-blur-2xl">
               {LINKS.map((item) => (
                 <Link
                   key={item.href}
@@ -123,7 +123,7 @@ export default function Header() {
               <Link
                 href="/booking"
                 onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm font-semibold rounded-xl text-center mt-3 shadow-lg shadow-blue-500/20"
+                className="block px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm font-semibold rounded-xl text-center mt-4 shadow-lg shadow-blue-500/20"
               >
                 {t("nav.bookNow")}
               </Link>

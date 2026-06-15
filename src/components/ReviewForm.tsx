@@ -46,7 +46,7 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="glass-card rounded-2xl shadow-xl p-8 text-center"
+        className="premium-card rounded-2xl shadow-xl p-8 text-center"
       >
         <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-8 h-8 text-green-400" />
@@ -58,7 +58,7 @@ export default function ReviewForm({ orderId }: { orderId?: string }) {
   }
 
   return (
-    <div className="glass-card rounded-2xl shadow-xl p-6 md:p-8">
+    <div className="premium-card rounded-2xl shadow-xl p-6 md:p-8">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl flex items-center justify-center">
           <MessageSquare className="w-5 h-5 text-blue-400" />

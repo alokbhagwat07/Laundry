@@ -88,7 +88,7 @@ export default function OrderTracker() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="glass-card rounded-2xl shadow-xl p-8 text-center"
+            className="premium-card rounded-2xl shadow-xl p-8 text-center"
           >
             <Loader2 className="w-10 h-10 text-blue-400 mx-auto mb-3 animate-spin" />
             <p className="text-dark-300">{t("tracking.searching")}</p>
@@ -102,7 +102,7 @@ export default function OrderTracker() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="glass-card rounded-2xl shadow-xl p-8 text-center"
+            className="premium-card rounded-2xl shadow-xl p-8 text-center"
           >
             <Package className="w-12 h-12 text-dark-500 mx-auto mb-3" />
             <p className="text-dark-300 font-medium">{error || t("tracking.notFound")}</p>
@@ -125,7 +125,7 @@ export default function OrderTracker() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="glass-card rounded-2xl overflow-hidden"
+            className="premium-card rounded-2xl overflow-hidden"
           >
             <div className="bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 px-6 py-5 border-b border-white/[0.06]">
               <p className="text-dark-300 text-sm">{t("tracking.orderId")}</p>

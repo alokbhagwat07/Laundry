@@ -37,7 +37,7 @@ export default function FloatingChat() {
           setOpen(next);
           if (next) window.dispatchEvent(new CustomEvent("close-whatsapp"));
         }}
-        className="fixed bottom-6 right-6 z-[10001] w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-blue-400/40 hover:scale-110 active:scale-95 transition-all duration-200 animate-pulse-glow"
+        className="fixed bottom-6 right-6 z-[10001] w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-blue-400/40 hover:scale-110 active:scale-95 transition-all duration-200 animate-card-glow ring-2 ring-blue-400/20 hover:ring-blue-400/40"
         aria-label="AI Chat"
       >
         {open ? (

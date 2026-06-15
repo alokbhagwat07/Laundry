@@ -13,21 +13,25 @@ export default function PricingPage() {
   return (
     <>
       <section className="relative min-h-[50vh] flex items-center overflow-hidden bg-dark-900 pt-24">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/60 via-dark-900 to-dark-900" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08),transparent_60%)]" />
-        <div className="absolute inset-0 hero-grid opacity-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/80 via-dark-900/50 to-dark-900" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.15),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.06),transparent_50%)]" />
+        <div className="absolute inset-0 hero-grid opacity-20" />
+        <div className="absolute top-0 left-1/3 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-20 left-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-float-slow" />
+        <div className="absolute top-32 right-10 w-52 h-52 bg-purple-500/8 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-40 right-1/4 w-36 h-36 bg-blue-400/5 rounded-full blur-2xl animate-pulse" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-16">
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-medium mb-5 tracking-wide">
+            <div className="section-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 backdrop-blur-sm border border-blue-500/20 text-blue-300 text-xs font-medium mb-5 tracking-wide shadow-lg shadow-blue-500/5">
               <IndianRupee className="w-3.5 h-3.5" />
               Transparent Pricing
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight text-balance glow-text">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight text-balance glow-text" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {t("pricing.title")}
             </h1>
             <p className="text-dark-300 text-lg md:text-xl max-w-2xl mx-auto">
@@ -35,10 +39,12 @@ export default function PricingPage() {
             </p>
           </motion.div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-dark-900 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-dark-900 via-dark-900/80 to-transparent" />
       </section>
 
-      <section className="py-20 md:py-28 bg-dark-900">
+      <section className="relative py-20 md:py-28 bg-dark-900 overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/3 rounded-full blur-[100px]" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/3 rounded-full blur-[100px]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
             <div className="lg:col-span-3">
@@ -63,7 +69,7 @@ export default function PricingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="glass-card rounded-2xl overflow-hidden"
+                className="premium-card rounded-2xl overflow-hidden"
               >
                 <div className="bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 px-6 py-5 border-b border-white/[0.06]">
                   <div className="flex items-center gap-2">
@@ -82,7 +88,7 @@ export default function PricingPage() {
                   {PRICING.map((item) => (
                     <div
                       key={item.name}
-                      className="flex items-center px-6 py-4 hover:bg-white/[0.02] transition-colors"
+                      className="flex items-center px-6 py-4 hover:bg-white/[0.04] transition-colors"
                     >
                       <div className="flex-1 flex items-center gap-3">
                         <span className="text-xl">{item.icon}</span>
@@ -106,10 +112,10 @@ export default function PricingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="mt-6 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 rounded-xl p-5 border border-blue-500/20"
+                className="mt-6 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 rounded-xl p-5 border border-blue-500/20 group hover:border-blue-500/30 transition-all duration-300"
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Sparkles className="w-5 h-5 text-blue-400" />
                   </div>
                   <div>

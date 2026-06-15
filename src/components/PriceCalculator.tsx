@@ -31,7 +31,7 @@ export default function PriceCalculator() {
   const discountedTotal = total - total * discount;
 
   return (
-    <div className="glass-card rounded-2xl overflow-hidden">
+    <div className="premium-card rounded-2xl overflow-hidden">
       <div className="bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 px-6 py-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">

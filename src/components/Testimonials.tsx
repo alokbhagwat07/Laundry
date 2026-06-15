@@ -45,7 +45,7 @@ export default function Testimonials() {
 
   if (reviews.length === 0) {
     return (
-      <div className="glass-card rounded-2xl shadow-xl p-12 text-center">
+      <div className="premium-card rounded-2xl shadow-xl p-12 text-center">
         <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Quote className="w-7 h-7 text-blue-400" />
         </div>
@@ -57,7 +57,7 @@ export default function Testimonials() {
   const t = reviews[current];
 
   return (
-    <div className="glass-card rounded-2xl shadow-xl p-8 md:p-10">
+    <div className="premium-card rounded-2xl shadow-xl p-8 md:p-10">
       <AnimatePresence mode="wait">
         <motion.div
           key={current}

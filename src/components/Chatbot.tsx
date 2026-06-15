@@ -52,7 +52,7 @@ export default function Chatbot({ onClose }: { onClose?: () => void }) {
   };
 
   return (
-    <div className="glass-card-static rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-black/30" style={{ maxHeight: "520px" }}>
+    <div className="premium-card rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-black/30" style={{ maxHeight: "520px" }}>
       <div className="bg-gradient-to-r from-blue-600 to-indigo-500 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
