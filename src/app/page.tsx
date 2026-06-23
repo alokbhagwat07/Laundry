@@ -73,11 +73,11 @@ export default function HomePage() {
               key={i}
               className="absolute w-1.5 h-1.5 bg-blue-400/30 rounded-full"
               style={{
-                top: `${5 + Math.random() * 90}%`,
-                left: `${5 + Math.random() * 90}%`,
-                animation: `particle-drift ${6 + Math.random() * 6}s ease-out infinite`,
-                animationDelay: `${Math.random() * 4}s`,
-                opacity: 0.2 + Math.random() * 0.4,
+                top: `${5 + (i * 17 + 3) % 90}%`,
+                left: `${5 + (i * 23 + 7) % 90}%`,
+                animation: `particle-drift ${6 + (i % 6)}s ease-out infinite`,
+                animationDelay: `${(i * 0.37) % 4}s`,
+                opacity: 0.2 + ((i * 13) % 40) / 100,
               }}
             />
           ))}
@@ -89,12 +89,12 @@ export default function HomePage() {
               key={i}
               className="absolute rounded-full bg-white/[0.02] border border-white/[0.04]"
               style={{
-                top: `${10 + Math.random() * 80}%`,
-                left: `${5 + Math.random() * 90}%`,
-                width: `${30 + Math.random() * 60}px`,
-                height: `${30 + Math.random() * 60}px`,
-                animation: `float ${5 + Math.random() * 4}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 3}s`,
+                top: `${10 + (i * 29 + 5) % 80}%`,
+                left: `${5 + (i * 13 + 11) % 90}%`,
+                width: `${30 + (i * 7 + 3) % 60}px`,
+                height: `${30 + (i * 11 + 5) % 60}px`,
+                animation: `float ${5 + (i % 4)}s ease-in-out infinite`,
+                animationDelay: `${(i * 0.53) % 3}s`,
               }}
             />
           ))}

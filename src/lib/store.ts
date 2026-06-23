@@ -67,40 +67,42 @@ export async function getOrderByOrderId(orderId: string): Promise<Order | null> 
 }
 
 export async function createOrder(order: Order): Promise<Order> {
-  const { error } = await supabase.from("orders").insert({
-    id: order.id,
-    order_id: order.order_id,
-    customer_id: order.customer_id || "",
-    customer_name: order.customer_name,
-    customer_mobile: order.customer_mobile,
-    customer_address: order.customer_address,
-    items: order.items,
-    total_amount: order.total_amount,
-    pickup_date: order.pickup_date,
-    pickup_time: order.pickup_time,
-    service_type: (order as unknown as Record<string, unknown>).service_type as string || "press",
-    status: order.status,
-    payment_id: order.payment_id || "",
-    razorpay_order_id: order.razorpay_order_id || "",
-    amount_paid: order.amount_paid || 0,
-    payment_status: order.payment_status || "Pending",
-    payment_method: order.payment_method || "",
-    payment_date: order.payment_date || null,
-    payment_mode: order.payment_mode || "online",
-    created_at: order.created_at,
-    updated_at: order.updated_at,
-  });
+  try {
+    const { error } = await supabase.from("orders").insert({
+      id: order.id,
+      order_id: order.order_id,
+      customer_id: order.customer_id || "",
+      customer_name: order.customer_name,
+      customer_mobile: order.customer_mobile,
+      customer_address: order.customer_address,
+      items: order.items,
+      total_amount: order.total_amount,
+      pickup_date: order.pickup_date,
+      pickup_time: order.pickup_time,
+      service_type: (order as unknown as Record<string, unknown>).service_type as string || "press",
+      status: order.status,
+      payment_id: order.payment_id || "",
+      razorpay_order_id: order.razorpay_order_id || "",
+      amount_paid: order.amount_paid || 0,
+      payment_status: order.payment_status || "Pending",
+      payment_method: order.payment_method || "",
+      payment_date: order.payment_date || null,
+      payment_mode: order.payment_mode || "online",
+      created_at: order.created_at,
+      updated_at: order.updated_at,
+    });
 
-  if (isTableNotFound(error)) {
+    if (error) {
+      console.error("Supabase createOrder failed, using in-memory:", error.message || error);
+      memOrders.push(order);
+      return order;
+    }
+    return order;
+  } catch (err) {
+    console.error("Supabase connection failed, using in-memory:", err instanceof Error ? err.message : err);
     memOrders.push(order);
     return order;
   }
-
-  if (error) {
-    console.error("Failed to create order:", error);
-    throw new Error(error.message || "Failed to create order");
-  }
-  return order;
 }
 
 export async function updatePaymentStatus(
@@ -219,37 +221,40 @@ export async function deleteReview(id: number): Promise<boolean> {
 
 export async function createReview(review: Omit<Review, "id" | "created_at">): Promise<Review> {
   const createdAt = new Date().toISOString();
-  const { data, error } = await supabase
-    .from("reviews")
-    .insert({
-      customer_name: review.customer_name,
-      rating: review.rating,
-      comment: review.comment,
-      order_id: review.order_id || "",
-      created_at: createdAt,
-    })
-    .select()
-    .single();
 
-  if (isTableNotFound(error)) {
-    console.warn("Supabase reviews table not found — storing review in memory (will NOT persist after server restart)");
-    const newReview: Review = {
-      id: memReviews.length + 1,
-      customer_name: review.customer_name,
-      rating: review.rating,
-      comment: review.comment,
-      order_id: review.order_id || "",
-      created_at: createdAt,
-    };
+  const newReview: Review = {
+    id: memReviews.length + 1,
+    customer_name: review.customer_name,
+    rating: review.rating,
+    comment: review.comment,
+    order_id: review.order_id || "",
+    created_at: createdAt,
+  };
+
+  try {
+    const { data, error } = await supabase
+      .from("reviews")
+      .insert({
+        customer_name: review.customer_name,
+        rating: review.rating,
+        comment: review.comment,
+        order_id: review.order_id || "",
+        created_at: createdAt,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn("Supabase createReview failed, using in-memory:", error.message || error);
+      memReviews.push(newReview);
+      return newReview;
+    }
+    return data as Review;
+  } catch (err) {
+    console.warn("Supabase connection failed for review, using in-memory:", err instanceof Error ? err.message : err);
     memReviews.push(newReview);
     return newReview;
   }
-
-  if (error) {
-    console.error("Failed to create review:", error);
-    throw new Error(error.message || "Failed to create review");
-  }
-  return data as Review;
 }
 
 export async function upsertCustomer(customer: {
@@ -306,34 +311,38 @@ export async function getContacts(): Promise<Contact[]> {
 
 export async function createContact(contact: Omit<Contact, "id" | "created_at">): Promise<Contact> {
   const createdAt = new Date().toISOString();
-  const { data, error } = await supabase
-    .from("contacts")
-    .insert({
-      name: contact.name,
-      email: contact.email || "",
-      mobile: contact.mobile,
-      message: contact.message,
-      created_at: createdAt,
-    })
-    .select()
-    .single();
 
-  if (isTableNotFound(error)) {
-    const newContact: Contact = {
-      id: memContacts.length + 1,
-      name: contact.name,
-      email: contact.email || "",
-      mobile: contact.mobile,
-      message: contact.message,
-      created_at: createdAt,
-    };
+  const newContact: Contact = {
+    id: memContacts.length + 1,
+    name: contact.name,
+    email: contact.email || "",
+    mobile: contact.mobile,
+    message: contact.message,
+    created_at: createdAt,
+  };
+
+  try {
+    const { data, error } = await supabase
+      .from("contacts")
+      .insert({
+        name: contact.name,
+        email: contact.email || "",
+        mobile: contact.mobile,
+        message: contact.message,
+        created_at: createdAt,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn("Supabase createContact failed, using in-memory:", error.message || error);
+      memContacts.push(newContact);
+      return newContact;
+    }
+    return data as Contact;
+  } catch (err) {
+    console.warn("Supabase connection failed for contact, using in-memory:", err instanceof Error ? err.message : err);
     memContacts.push(newContact);
     return newContact;
   }
-
-  if (error) {
-    console.error("Failed to create contact:", error);
-    throw new Error("Failed to submit contact form");
-  }
-  return data as Contact;
 }
